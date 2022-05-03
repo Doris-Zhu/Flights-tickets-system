@@ -1,14 +1,30 @@
 <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
-<div class="card border-0 shadow rounded-3 my-5">
-    <div class="card-body p-4 p-sm-5" style="background-color: beige;">
-     <h5 class="card-title text-center mb-5 fw-light fs-5">Sign In</h5>
-	 <p style="color:red;">{{message}}</p>
-		<form method="POST" action="\login">
-			<div class='form-row'><label>Username: </label> <input name="username" type="text" style="margin-left: 3px;"></div>
-			<div class='form-row' style="margin-top:10px;"><label>Password: </label> <input name="password" type="password" style="margin-left: 3px;"></div>
-			<div class='form-row'><input type="submit" class="submit btn btn-success" value="Login"></div>
-			<div class='form-row'>Don't have an account? <a href="/register">Register</a>.</div>
-		</form>
-	</div>
-</div>
+    <div class="card border-0 shadow rounded-3 my-5">
+        <div class="card-body p-4 p-sm-5" style="background-color: beige;">
+            <h5 class="card-title text-center mb-5 fw-light fs-5">
+                Sign In
+            </h5>
+            <p style="color:red;">
+                {{message}}
+            </p>
+            <form method="POST" action="/login">
+                <div class='form-row'>
+                    <label>Username:&nbsp;</label>
+                    <input name="username" type="text" style="margin-left: 3px;">
+                </div>
+                <div class='form-row' style="margin-top:10px;">
+                    <label>Password:&nbsp;</label>
+                    <input name="password" type="password" style="margin-left: 3px;">
+                </div>
+                <div class='form-row'>
+                    <input type="submit" class="submit btn btn-success" value="Login">
+                </div>
+                <div class='form-row'>
+                    Don't have an account?&nbsp;
+                    <a href="/register">Register</a>
+                    .
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

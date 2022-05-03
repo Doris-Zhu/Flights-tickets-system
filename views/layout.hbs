@@ -1,46 +1,41 @@
 <!doctype html>
 <html>
 <head>
-    <title>
-        ATRS
-    </title>
-
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<link rel='stylesheet' href='/stylesheets/styles.css'>
+    <title>ATRS</title>
+    <link rel="stylesheet" 
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
+        crossorigin="anonymous">
+    <link rel='stylesheet' href='/stylesheets/styles.css'>
 </head>
 <body>
     <script src="https://code.jquery.com/jquery-3.3.1.js"
         integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
         crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" 
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" 
+        crossorigin="anonymous"></script>
 
     <div id="wrapper">
-    <div id="hd">
-    {{#if user}}
-    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 border-bottom box-shadow">
-    <div>Logged in as: {{user.username}} (<a href="/logout">Logout</a>)
-
-    </div>
-        <nav id="ft" class="my-2 my-md-0 mr-md-3">
+        <div id="hd">
             {{#if user}}
-                <a href="/" class="p-2 text-dark">Home  </a> |
-                <a href="/board/{{user.username}}" class="p-2 text-dark">  My Board</a>
+                <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 border-bottom box-shadow">
+                    <div>
+                        Logged in as: {{user.username}} (<a href="/logout">Logout</a>)
+                    </div>
+                    <nav id="ft" class="my-2 my-md-0 mr-md-3">
+                        {{#if user}}
+                            <a href="/" class="p-2 text-dark">Home  </a> |
+                            <a href="/board/{{user.username}}" class="p-2 text-dark">  My Board</a>
+                        {{/if}}
+                    </nav>
+                </div>
             {{/if}}
-        </nav>
-    </div>
-    {{/if}}
-        <h1 style="margin-top: 1%;">
-        <span class="letters">Air Ticket Reservation System</span>
-        </h1>
-
-
-
-    </div>
-    <div id="bd">
-    </div>
-
-    {{{body}}}
-
+            <h1 style="margin-top: 1%;">
+                <span class="letters">Air Ticket Reservation System</span>
+            </h1>
+        </div>
+        {{{body}}}
     </div>
 </body>
 </html>

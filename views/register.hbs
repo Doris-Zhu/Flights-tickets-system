@@ -1,0 +1,23 @@
+<div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+<div class="card border-0 shadow rounded-3 my-5">
+    <div class="card-body p-4 p-sm-5" style="background-color: beige;">
+     <h5 class="card-title text-center mb-5 fw-light fs-5">Sign Up</h5>
+	 <p style="color:red;">{{message}}</p>
+	<form method="POST" action="/register">
+		<div class='form-row'><label>Username:</label> <input name="username" type="text" style="margin-left: 3px;"></div>
+		<div class='form-row' style="margin-top:10px;"> <label>Password:</label> <input name="password" type="password" style="margin-left: 3px;"></div>
+        <div class='form-row'><label>Choose a role:</label> 
+            <input type="radio" id="customer" name="role" value="Customer">
+            <label for="customer">Customer</label><br>
+            <input type="radio" id="agent" name="role" value="Booking Agent">
+            <label for="agent">Booking Agent</label><br>
+            <input type="radio" id="staff" name="role" value="Airline Staff">
+            <label for="staff">Airline Staff</label>
+        </div>
+		<div class='form-row'><input type="submit" class="submit btn btn-success" value="Register"></div>
+		<div class='form-row'>Already have an account? <a href="/login">Login</a>.</div>
+	</form>
+
+</div>
+</div>
+</div>

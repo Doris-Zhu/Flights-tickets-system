@@ -1,0 +1,26 @@
+{
+  "name": "databases-final-project",
+  "version": "1.0.0",
+  "description": "Project for Databases CSCI-SHU 213",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Doris-Zhu/databases-final-project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Doris-Zhu/databases-final-project/issues"
+  },
+  "homepage": "https://github.com/Doris-Zhu/databases-final-project#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "express-session": "^1.17.2",
+    "hbs": "^4.2.0",
+    "mysql": "^2.18.1",
+    "path": "^0.12.7"
+  }
+}

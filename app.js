@@ -20,13 +20,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/login', (req, res) => {
-    res.render('login', { message: 'test message' });
+    res.render('role', { message: 'test message', op: 'login' });
 });
 
 app.post('/login', (req, res) => {});
 
 app.get('/register', (req, res) => {
-    res.render('register', {});
+    res.render('role', {op: 'login'});
 })
 
 const handleRegister = async function(req, res) {

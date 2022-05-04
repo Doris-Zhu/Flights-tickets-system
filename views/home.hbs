@@ -1,0 +1,36 @@
+{{#if user}}
+    <p>
+        Hi {{user.username}}. Welcome to ATRS!
+    </p>
+{{else}}
+    <div class="lr">
+        <a href="/login">Login</a> or <a href="/register">Register</a>
+    </div>
+{{/if}}
+<div class="flights">
+    <h3 class="fw-bold text-success text-center" style="margin-top: 30px;"> Flights </h3>
+    <form action="/" method="GET" style="margin-bottom: 2%;">
+        <label>Search: </label><input name="search" type="text">
+        <input class="btn btn-outline-success" style="margin-top: 5px;" type="submit" value="submit">
+    </form>
+    {{#if flights}}
+        <table>
+            <tr>
+                <th>Flight Number</th>
+                <th>Departure Airport</th>
+                <th>Destination Airport</th>
+                <th>Date</th>    
+            </tr>
+        {{#each flights as |f|}}
+            <tr>
+                <td>{{f.flight_num}}</td>
+                <td>{{f.departure_airport}}</td>
+                <td>{{f.arrival_airport}}</td>
+                <td>{{f.departure_time}}</td>
+            </tr>
+        {{/each}}
+        </table>
+</div>
+    {{else}}
+        <p style="color:red;">No flight</p>
+    {{/if}}

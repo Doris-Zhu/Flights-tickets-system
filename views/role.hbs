@@ -1,0 +1,35 @@
+<div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+    <div class="card border-0 shadow rounded-3 my-5">
+        <div class="card-body p-4 p-sm-5" style="background-color: beige;">
+            <h5 class="card-title text-center mb-5 fw-light fs-5">
+                Choose a role to {{op}}
+            </h5>
+            <p style="color:red;">
+                {{message}}
+            </p>
+            <form method="POST" action="/{{op}}"> 
+            {{!-- 我不确定这里action是不是register/login --}}
+                <div class='form-row' style="margin-top:10px;">
+                    <label>
+                        Role:&nbsp;
+                    </label>
+                    <label>
+                        <input type="radio" id="customer" name="role" value="Customer" checked/>
+                        Customer&nbsp;
+                    </label>
+                    <label>
+                        <input type="radio" id="agent" name="role" value="Booking Agent" />
+                        Booking Agent&nbsp;
+                    </label>
+                    <label>
+                        <input type="radio" id="staff" name="role" value="Airline Staff" />
+                        Airline Staff&nbsp;
+                    </label>
+                </div>
+                <div class='form-row'>
+                    <input type="submit" class="submit btn btn-success" value="Register">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

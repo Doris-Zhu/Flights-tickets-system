@@ -4,12 +4,9 @@
             <h5 class="card-title text-center mb-5 fw-light fs-5">
                 Choose a role to {{op}}
             </h5>
-            <p style="color:red;">
-                {{message}}
-            </p>
-            <form method="POST" action="/{{op}}"> 
+            <form method="GET" action="/{{op}}">
             {{!-- 我不确定这里action是不是register/login --}}
-                <div class='form-row' style="margin-top:10px;">
+                <div class='form-row'>
                     <label>
                         Role:&nbsp;
                     </label>
@@ -18,16 +15,16 @@
                         Customer&nbsp;
                     </label>
                     <label>
-                        <input type="radio" id="agent" name="role" value="Booking Agent" />
+                        <input type="radio" id="agent" name="role" value="Agent" />
                         Booking Agent&nbsp;
                     </label>
                     <label>
-                        <input type="radio" id="staff" name="role" value="Airline Staff" />
+                        <input type="radio" id="staff" name="role" value="Staff" />
                         Airline Staff&nbsp;
                     </label>
                 </div>
                 <div class='form-row'>
-                    <input type="submit" class="submit btn btn-success" value="Register">
+                    <input type="submit" class="submit btn btn-success" value="Select">
                 </div>
             </form>
         </div>

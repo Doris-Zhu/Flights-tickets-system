@@ -25,13 +25,25 @@ app.get('/logout', (req, res) => {
 	req.user = undefined;
     req.session.user = undefined;
     req.session.role = undefined;
+    req.session.username = undefined;
 	res.redirect('/');
 });
 
 // HOME
 const handleGetHome = async function(req, res) {
-    const results = await sql(queries.findAllFlights());
-    res.render('home_staff', { flights: results });
+    let flights;
+    if (req.query.search === undefined || req.query.search === '') {
+        flights = await sql(queries.findAllFlights());
+    }
+    else {
+        flights = await sql(queries.findFlights(req.query.search));
+    }
+
+    if (req.session.role === undefined) {
+        res.render('home', { flights });
+        return;
+    }
+    res.render(`home_${req.session.role}`, { user: req.session.username, flights });
 };
 
 app.get('/', handleGetHome);
@@ -44,6 +56,15 @@ const handleLogin = async (req, res, results, role) => {
         if (correctPassword) {
             req.session.user = results[0];
             req.session.role = role;
+            if (role === 'customer') {
+                req.session.username = results[0].name;
+            }
+            else if (role === 'agent') {
+                req.session.username = results[0].email;
+            }
+            else {
+                req.session.username = results[0].username;
+            }
             res.redirect('/');
         }
         else {
@@ -56,17 +77,17 @@ const handleLogin = async (req, res, results, role) => {
 };
 
 const handleCustomerLogin  = async function(req, res) {
-    const results = await sql(queries.findCustomerByEmail(req.body.email));
+    let results = await sql(queries.findCustomerByEmail(req.body.email));
     handleLogin(req, res, results, 'customer');
 };
 
 const handleAgentLogin  = async function(req, res) {
-    const results = await sql(queries.findAgentByEmail(req.body.email));
+    let results = await sql(queries.findAgentByEmail(req.body.email));
     handleLogin(req, res, results, 'agent');
 };
 
 const handleStaffLogin  = async function(req, res) {
-    const results = await sql(queries.findStaffByUsername(req.body.username));
+    let results = await sql(queries.findStaffByUsername(req.body.username));
     handleLogin(req, res, results, 'staff');
 };
 
@@ -154,16 +175,16 @@ const handleCustomerRegister = async function(req, res) {
         return;
     }
 
-    const results = await sql(queries.findCustomerByEmail(body.email));
+    let results = await sql(queries.findCustomerByEmail(body.email));
     if (results.length > 0) {
         res.render('customer_register', { message: 'This email is already registered.' });
+        return;
     }
-    else {
-        console.log('saving customer');
-        await hashPassword(body);
-        await sql(queries.saveCustomer(body));
-        res.redirect('/login');
-    }
+
+    console.log('saving customer');
+    await hashPassword(body);
+    await sql(queries.saveCustomer(body));
+    res.redirect('/login');
 };
 
 const handleAgentRegister = async function(req, res) {
@@ -182,17 +203,17 @@ const handleAgentRegister = async function(req, res) {
         return;
     }
 
-    const results = await sql(queries.findAgentByEmail(body.email));
+    let results = await sql(queries.findAgentByEmail(body.email));
     if (results.length > 0) {
         res.render('agent_register', { message: 'This email is already registered.' });
+        return;
     }
-    else {
-        console.log('saving agent');
-        await hashPassword(body);
-        body.id = Math.floor(Math.random() * (2**31 - 1));
-        const results = await sql(queries.saveAgent(body));
-        res.redirect('/login');
-    }
+
+    console.log('saving agent');
+    await hashPassword(body);
+    body.id = Math.floor(Math.random() * (2**31 - 1));
+    await sql(queries.saveAgent(body));
+    res.redirect('/login');
 };
 
 const handleStaffRegister = async function(req, res) {
@@ -230,22 +251,22 @@ const handleStaffRegister = async function(req, res) {
         return;
     }
 
-    const results = await sql(queries.findStaffByUsername(body.username));
+    let results = await sql(queries.findStaffByUsername(body.username));
     if (results.length > 0) {
         res.render('staff_register', { message: 'This username is already registered.' });
+        return;
     }
-    else {
-        const results = await sql(queries.findAirlineByName(body.airline));
-        if (results.length === 0) {
-            res.render('staff_register', { message: 'Airline is not in database' });
-        }
-        else {
-            console.log('saving staff');
-            await hashPassword(body);
-            await sql(queries.saveStaff(body));
-            res.redirect('/login');
-        }
+
+    results = await sql(queries.findAirlineByName(body.airline));
+    if (results.length === 0) {
+        res.render('staff_register', { message: 'Airline is not in database' });
+        return;
     }
+    
+    console.log('saving staff');
+    await hashPassword(body);
+    await sql(queries.saveStaff(body));
+    res.redirect('/login');
 };
 
 app.get('/register', (req, res) => {
@@ -274,13 +295,16 @@ app.get('/register/staff', (req, res) => {
 });
 
 app.post('/register/staff', handleStaffRegister);
+// END OF REGISTER
 
 // STAFF
 async function getPermission(username) {
-    let permission = 'None'
-    permission = await sql(queries.getPermission(username));
-    console.log('out', permission);
-    return permission;
+    let results = await sql(queries.getPermission(username));
+    if (results.length === 1) {
+        return results[0].permission_type;
+    }
+    return null;
 }
+// END OF STAFF
 
 app.listen(PORT, () => console.log(`listening to port ${PORT}`));

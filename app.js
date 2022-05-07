@@ -1,8 +1,8 @@
-const express = require('express');
-const session = require('express-session');
 const bcrypt = require('bcrypt');
+const express = require('express');
 const moment = require('moment');
 const path = require('path');
+const session = require('express-session');
 
 const { sql, queries } = require('./db.js');
 
@@ -54,21 +54,21 @@ app.get('/', handleGetHome);
 app.get('/myinfo', async (req, res) => {
 	const role = req.session.role;
     if (role == 'customer') {
-        const myflights = await sql(queries.findMyFlights(req.session.user.email));
-        res.render('view_customer', { myflights: myflights });
+        const flights = await sql(queries.findMyFlights(req.session.user.email));
+        console.log(flights);
+        res.render('view_customer', { myflights: flights });
     }
 });
 
 app.post('/purchase', async (req, res) => {
-    const obj = JSON.parse(req.body.purchase);
-    obj.id = Math.floor(Math.random() * (2**31 - 1));
-    obj.email = req.session.user.email;
-    obj.date = new Date().toISOString().slice(0, 10);
-    await sql(queries.createTicket(obj));
-    await sql(queries.createPurchase(obj));
+    const purchaseInfo = JSON.parse(req.body.purchase);
+    purchaseInfo.id = Math.floor(Math.random() * (2**31 - 1));
+    purchaseInfo.email = req.session.user.email;
+    purchaseInfo.date = new Date().toISOString().slice(0, 10);
+    await sql(queries.createTicket(purchaseInfo));
+    await sql(queries.createPurchase(purchaseInfo));
     res.redirect('/myinfo');
 });
-
 //END OF INFO
 
 // LOGIN
@@ -99,17 +99,17 @@ const handleLogin = async (req, res, results, role) => {
 };
 
 const handleCustomerLogin  = async function(req, res) {
-    let results = await sql(queries.findCustomerByEmail(req.body.email));
+    const results = await sql(queries.findCustomerByEmail(req.body.email));
     handleLogin(req, res, results, 'customer');
 };
 
 const handleAgentLogin  = async function(req, res) {
-    let results = await sql(queries.findAgentByEmail(req.body.email));
+    const results = await sql(queries.findAgentByEmail(req.body.email));
     handleLogin(req, res, results, 'agent');
 };
 
 const handleStaffLogin  = async function(req, res) {
-    let results = await sql(queries.findStaffByUsername(req.body.username));
+    const results = await sql(queries.findStaffByUsername(req.body.username));
     handleLogin(req, res, results, 'staff');
 };
 
@@ -197,7 +197,7 @@ const handleCustomerRegister = async function(req, res) {
         return;
     }
 
-    let results = await sql(queries.findCustomerByEmail(body.email));
+    const results = await sql(queries.findCustomerByEmail(body.email));
     if (results.length > 0) {
         res.render('customer_register', { message: 'This email is already registered.' });
         return;
@@ -225,7 +225,7 @@ const handleAgentRegister = async function(req, res) {
         return;
     }
 
-    let results = await sql(queries.findAgentByEmail(body.email));
+    const results = await sql(queries.findAgentByEmail(body.email));
     if (results.length > 0) {
         res.render('agent_register', { message: 'This email is already registered.' });
         return;
@@ -273,7 +273,7 @@ const handleStaffRegister = async function(req, res) {
         return;
     }
 
-    let results = await sql(queries.findStaffByUsername(body.username));
+    const results = await sql(queries.findStaffByUsername(body.username));
     if (results.length > 0) {
         res.render('staff_register', { message: 'This username is already registered.' });
         return;
@@ -321,7 +321,7 @@ app.post('/register/staff', handleStaffRegister);
 
 // STAFF
 async function getPermission(username) {
-    let results = await sql(queries.getPermission(username));
+    const results = await sql(queries.getPermission(username));
     if (results.length === 1) {
         return results[0].permission_type;
     }

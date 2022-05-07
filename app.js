@@ -31,19 +31,20 @@ app.get('/logout', (req, res) => {
 
 // HOME
 const handleGetHome = async function(req, res) {
-    let flights;
-    if (req.query.search === undefined || req.query.search === '') {
-        flights = await sql(queries.findAllFlights());
-    }
-    else {
-        flights = await sql(queries.findFlights(req.query.search));
-    }
+    const flights = await sql(queries.findFlights(req.query.search));
 
     if (req.session.role === undefined) {
         res.render('home', { flights });
-        return;
     }
-    res.render(`home_${req.session.role}`, { user: req.session.username, flights });
+    else if (req.session.role === 'staff') {
+        const permission = await getPermission(req.session.username);
+        const admin = permission === 'Admin';
+        const operator = permission === 'Operator';
+        res.render(`home_staff`, { user: req.session.username, flights, admin, operator });
+    }
+    else {
+        res.render(`home_${req.session.role}`, { user: req.session.username, flights });
+    }
 };
 
 app.get('/', handleGetHome);

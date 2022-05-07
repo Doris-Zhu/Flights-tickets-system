@@ -34,17 +34,22 @@ VALUES ('${body.username}', '${body.password}', '${body.firstname}', '${body.las
 '${body.dob}', '${body.airline}')
 `;
 
-const findAllFlights = () => `SELECT * FROM flight`;
-
-const findFlights = (keyword) => `
-SELECT flight.airline_name,flight.flight_num,flight.departure_airport,flight.departure_time,
-flight.arrival_airport,flight.arrival_time,flight.price,flight.status,flight.airplane_id
-FROM flight,airport
-WHERE flight.departure_airport = '${keyword}'
-or flight.arrival_airport = '${keyword}'
-or (flight.departure_airport = airport.airport_name and airport.airport_city = '${keyword}')
-or (flight.arrival_airport = airport.airport_name and airport.airport_city = '${keyword}')
-`;
+const findFlights = (keyword) => {
+    if (keyword === undefined || keyword === '') {
+        return `SELECT * FROM flight`;
+    }
+    return `
+    SELECT flight.airline_name, flight.flight_num, flight.departure_airport, flight.departure_time,
+        flight.arrival_airport, flight.arrival_time, flight.price, flight.status, flight.airplane_id
+    FROM flight, airport
+    WHERE flight.departure_airport = airport.airport_name AND (
+        flight.departure_airport = '${keyword}' OR 
+        flight.arrival_airport = '${keyword}' OR 
+        airport.airport_city = '${keyword}' OR 
+        airport.airport_city = '${keyword}'
+    )
+    `;
+}
 
 const addFlight = (body) => `
 INSERT INTO flight
@@ -79,7 +84,6 @@ module.exports = {
         saveAgent,
         saveStaff,
         findAirlineByName,
-        findAllFlights,
         findFlights,
         addFlight,
         getPermission,

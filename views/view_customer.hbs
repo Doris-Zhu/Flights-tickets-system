@@ -1,0 +1,28 @@
+<h2>View My Flights</h2>
+{{#if myfligts}}
+     <table class="table table-striped diytable">
+        <tr>
+            <th scope="col">Airline</th>
+            <th scope="col">Flight Number</th>
+            <th scope="col">Departure Airport</th>
+            <th scope="col">Destination Airport</th>
+            <th scope="col">Date</th>
+            <th scope="col">Status</th>
+            <th scope="col">Purchase</th>
+        </tr>
+        {{#each myflights as |f|}}
+            <tr>
+                <td scope="row">{{f.airline_name}}</td>
+                <td>{{f.flight_num}}</td>
+                <td>{{f.departure_airport}}</td>
+                <td>{{f.arrival_airport}}</td>
+                <td>{{f.departure_time}}</td>
+                <td>{{f.status}}</td>
+                <td>
+                    <input type="radio" name="purchase" value={{f.flight_num}} />
+                </td>
+            </tr>
+        {{/each}}
+    </table>
+{{else}}
+{{/if}}

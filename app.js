@@ -49,6 +49,16 @@ const handleGetHome = async function(req, res) {
 app.get('/', handleGetHome);
 // END OF HOME
 
+//INFO
+app.get('/myinfo', (req, res) => {
+	const role = req.session.role;
+    if(role == 'customer'){
+        res.render('view_customer', {myflights: myflights})
+    }
+
+});
+//END OF INFO
+
 // LOGIN
 const handleLogin = async (req, res, results, role) => {
     if (results.length === 1) {

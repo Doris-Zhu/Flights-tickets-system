@@ -58,6 +58,16 @@ FROM permission
 WHERE username = '${username}'
 `
 
+const findMyFlights = (email) => `
+SELECT flight.airline_name,flight.flight_num,flight.departure_airport,flight.departure_time,
+flight.arrival_airport,flight.arrival_time,flight.price,flight.status,flight.airplane_id
+FROM flight,ticket,purchases
+WHERE flight.airline_name = ticket.airline_name
+and flight.flight_num = ticket.flight_num
+and ticket.ticket_id = purchases.ticket_id
+and purchases.customer_email = ${email}
+`
+
 module.exports = {
     sql,
     queries: {
@@ -73,5 +83,6 @@ module.exports = {
         findFlights,
         addFlight,
         getPermission,
+        findMyFlights
     },
 }

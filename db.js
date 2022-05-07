@@ -37,8 +37,13 @@ VALUES ('${body.username}', '${body.password}', '${body.firstname}', '${body.las
 const findAllFlights = () => `SELECT * FROM flight`;
 
 const findFlights = (keyword) => `
-SELECT * FROM flight WHERE departure_airport = '${keyword}'
-or arrival_airport = '${keyword}'
+SELECT flight.airline_name,flight.flight_num,flight.departure_airport,flight.departure_time,
+flight.arrival_airport,flight.arrival_time,flight.price,flight.status,flight.airplane_id
+FROM flight,airport
+WHERE flight.departure_airport = '${keyword}'
+or flight.arrival_airport = '${keyword}'
+or (flight.departure_airport = airport.airport_name and airport.airport_city = '${keyword}')
+or (flight.arrival_airport = airport.airport_name and airport.airport_city = '${keyword}')
 `;
 
 const addFlight = (body) => `

@@ -35,7 +35,10 @@
                 </tr>
             {{/each}}
         </table>
-</div>
     {{else}}
         <p style="color:red;">No flight</p>
     {{/if}}
+</div>
+{{#if admin}}
+    <button>Click to change permission.</button>
+{{/if}}

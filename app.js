@@ -41,9 +41,16 @@ const handleGetHome = async function(req, res) {
 
     if (req.session.role === undefined) {
         res.render('home', { flights });
-        return;
     }
-    res.render(`home_${req.session.role}`, { user: req.session.username, flights });
+    else if (req.session.role === 'staff') {
+        const permission = await getPermission(req.session.username);
+        const admin = permission === 'Admin';
+        const operator = permission === 'Operator';
+        res.render(`home_staff`, { user: req.session.username, flights, admin, operator });
+    }
+    else {
+        res.render(`home_${req.session.role}`, { user: req.session.username, flights });
+    }
 };
 
 app.get('/', handleGetHome);

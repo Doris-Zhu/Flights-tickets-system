@@ -10,11 +10,11 @@ connection.connect(err => {
     console.log('connected to mysql as id ' + connection.threadId);
 });
 
-const findCustomerByName = (name) => `SELECT * FROM customer WHERE name = "${name}"`;
-const findCustomerByEmail = (email) => `SELECT * FROM customer WHERE email = "${email}"`;
-const findAgentByEmail = (email) => `SELECT * FROM booking_agent WHERE email = "${email}"`;
-const findStaffByUsername = (username) => `SELECT * FROM airline_staff WHERE username = "${username}"`;
-const findAirlineByName = (name) => `SELECT * FROM airline WHERE airline_name = "${name}"`;
+const findCustomerByName = (name) => `SELECT * FROM customer WHERE name = '${name}'`;
+const findCustomerByEmail = (email) => `SELECT * FROM customer WHERE email = '${email}'`;
+const findAgentByEmail = (email) => `SELECT * FROM booking_agent WHERE email = '${email}'`;
+const findStaffByUsername = (username) => `SELECT * FROM airline_staff WHERE username = '${username}'`;
+const findAirlineByName = (name) => `SELECT * FROM airline WHERE airline_name = '${name}'`;
 
 const saveCustomer = (body) => `
 INSERT INTO customer
@@ -23,7 +23,7 @@ VALUES ('${body.email}', '${body.name}', '${body.password}', '${body.buildingnum
 `;
 const saveAgent = (body) => `
 INSERT INTO booking_agent
-VALUES ('${body.email}', '${body.password}', UUID())
+VALUES ('${body.email}', '${body.password}', '${body.id}')
 `;
 const saveStaff = (body) => `
 INSERT INTO airline_staff
@@ -34,8 +34,8 @@ VALUES ('${body.username}', '${body.password}', '${body.firstname}', '${body.las
 const findAllFlights = () => `SELECT * FROM flight`;
 
 const findFlights = (keyword) => `
-SELECT * FROM flight WHERE departure_airport = "${keyword}"
-or arrival_airport = "${keyword}"
+SELECT * FROM flight WHERE departure_airport = '${keyword}'
+or arrival_airport = '${keyword}'
 `;
 
 module.exports = {

@@ -255,6 +255,7 @@ const handleAgentRegister = async function(req, res) {
     const saveAgentToDatabase = async () => {
         console.log('saving agent');
         await hashPassword(body);
+        body.id = Math.floor(Math.random() * 10**12);
         sql.query(queries.saveAgent(body), (err, results, fields) => {
             if (err) {
                 throw err;

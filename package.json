@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Doris-Zhu/databases-final-project#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "express": "^4.18.1",
     "express-session": "^1.17.2",
     "hbs": "^4.2.0",

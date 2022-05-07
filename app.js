@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const bcrypt = require('bcrypt');
 const path = require('path');
 
 const { sql, queries } = require('./db.js');
@@ -116,7 +117,7 @@ const handleCustomerRegister = async function(req, res) {
         return;
     }
 
-    sql.query(queries.findCustomerByEmail(body.email), (err, results, fields) => {
+    sql.query(queries.findCustomerByEmail(body.email), async (err, results, fields) => {
         if (err) {
             throw err;
         }
@@ -125,6 +126,9 @@ const handleCustomerRegister = async function(req, res) {
             res.render('register', { message: 'This email is already registered.' });
         }
         else {
+            const salt = await bcrypt.genSalt(10);
+			const hash = await bcrypt.hash(body.password, salt);
+            body.password = hash;
             saveCustomerToDatabase();
         }
     });
@@ -161,7 +165,7 @@ const handleAgentRegister = async function(req, res) {
         return;
     }
 
-    sql.query(queries.findAgentByEmail(body.email), (err, results, fields) => {
+    sql.query(queries.findAgentByEmail(body.email), async (err, results, fields) => {
         if (err) {
             throw err;
         }
@@ -170,6 +174,9 @@ const handleAgentRegister = async function(req, res) {
             res.render('register', { message: 'This email is already registered.' });
         }
         else {
+            const salt = await bcrypt.genSalt(10);
+			const hash = await bcrypt.hash(body.password, salt);
+            body.password = hash;
             saveAgentToDatabase();
         }
     });
@@ -218,7 +225,7 @@ const handleStaffRegister = async function(req, res) {
         return;
     }
 
-    sql.query(queries.findStaffByUsername(body.username), (err, results, fields) => {
+    sql.query(queries.findStaffByUsername(body.username), async (err, results, fields) => {
         if (err) {
             throw err;
         }
@@ -227,6 +234,9 @@ const handleStaffRegister = async function(req, res) {
             res.render('register', { message: 'This username is already registered.' });
         }
         else {
+            const salt = await bcrypt.genSalt(10);
+			const hash = await bcrypt.hash(body.password, salt);
+            body.password = hash;
             saveStaffToDatabase();
         }
     });
@@ -247,14 +257,16 @@ const handleStaffRegister = async function(req, res) {
 };
 
 const handleCustomerLogin  = async function(req, res){
-    sql.query(queries.findCustomerByEmail(req.body.email), (err, results, fields) => {
+    sql.query(queries.findCustomerByEmail(req.body.email), async (err, results, fields) => {
         if (err) {
             throw err;
         }
         console.log(results);
         if (results.length > 0) {
-           const pw = req.body.pw;
-           if(pw === results.password){
+           const password = req.body.password;
+           const validPassword = await bcrypt.compare(password, results[0].password);
+           console.log(validPassword);
+           if(validPassword){
                req.session.email = req.body.email;
                req.session.role = 'customer';
                res.redirect('/home');
@@ -270,14 +282,16 @@ const handleCustomerLogin  = async function(req, res){
 };
 
 const handleAgentLogin  = async function(req, res){
-    sql.query(queries.findAgentByEmail(req.body.email), (err, results, fields) => {
+    sql.query(queries.findAgentByEmail(req.body.email), async (err, results, fields) => {
         if (err) {
             throw err;
         }
         console.log(results);
         if (results.length > 0) {
-           const pw = req.body.pw;
-           if(pw === results.password){
+           const password = req.body.password;
+           const validPassword = await bcrypt.compare(password, results[0].password);
+           console.log(validPassword);
+           if(validPassword){
                req.session.email = req.body.email;
                req.session.role = 'agent';
                res.redirect('/home');
@@ -293,14 +307,17 @@ const handleAgentLogin  = async function(req, res){
 };
 
 const handleStaffLogin  = async function(req, res){
-    sql.query(queries.findStaffByUsername(req.body.username), (err, results, fields) => {
+    console.log('hi');
+    sql.query(queries.findStaffByUsername(req.body.username), async (err, results, fields) => {
         if (err) {
             throw err;
         }
         console.log(results);
         if (results.length > 0) {
-           const pw = req.body.pw;
-           if(pw === results.password){
+           const password = req.body.password;
+           const validPassword = await bcrypt.compare(password, results[0].password);
+           console.log(validPassword);
+           if(validPassword){
                req.session.username = req.body.username;
                req.session.role = 'staff';
                res.redirect('/home');

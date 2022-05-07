@@ -19,9 +19,63 @@ app.use(session({
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.get('/logout', (req, res) => {
+	req.user = undefined;
+	req.session.username = undefined;
+	res.redirect('/login');
+});
 
-app.get('/', (req, res) => {
-    res.render('home', {  });
+const handleGetHome = function(req, res) {
+    if(req.query.search === undefined || req.query.search === ''){
+        sql.query(queries.findAllFlights(), async (err, results, fields) => {
+            if (err) {
+                throw err;
+            }
+            else{
+                const flights = results;
+                if(req.session.role === 'customer'){
+                    res.render('home_customer', {user: req.session.email, flights: flights});
+                }
+                else if(req.session.role === 'agent'){
+                    res.render('home_agent', {user: req.session.email, flights: flights});
+                }
+                else if(req.session.role === 'staff'){
+                    res.render('home_staff', {user: req.session.username, flights: flights});
+                }
+            }
+        });
+    }
+    else{
+        sql.query(queries.findFlights(req.query.search), async (err, results, fields) => {
+            console.log(req.query.search);
+            if (err) {
+                throw err;
+            }
+            else{
+                const flights = results;
+                console.log('post', flights);
+                if(req.session.role === 'customer'){
+                    res.render('home_customer', {user: req.session.email, flights: flights});
+                }
+                else if(req.session.role === 'agent'){
+                    res.render('home_agent', {user: req.session.email, flights: flights});
+                }
+                else if(req.session.role === 'staff'){
+                    res.render('home_staff', {user: req.session.username, flights: flights});
+                }
+            }
+            
+        });
+    }
+    
+};
+
+app.get('/', handleGetHome);
+
+app.get('/logout', (req, res) => {
+	req.user = undefined;
+	req.session.username = undefined;
+	res.redirect('/login');
 });
 
 app.get('/login', (req, res) => {
@@ -269,7 +323,7 @@ const handleCustomerLogin  = async function(req, res){
            if(validPassword){
                req.session.email = req.body.email;
                req.session.role = 'customer';
-               res.redirect('/home');
+               res.redirect('/');
            }
             else {
 		        res.render('customer_login', { message:'Your login or password is incorrect.' });
@@ -294,7 +348,7 @@ const handleAgentLogin  = async function(req, res){
            if(validPassword){
                req.session.email = req.body.email;
                req.session.role = 'agent';
-               res.redirect('/home');
+               res.redirect('/');
            }
             else {
 		        res.render('agent_login', { message:'Your login or password is incorrect.' });
@@ -307,20 +361,17 @@ const handleAgentLogin  = async function(req, res){
 };
 
 const handleStaffLogin  = async function(req, res){
-    console.log('hi');
     sql.query(queries.findStaffByUsername(req.body.username), async (err, results, fields) => {
         if (err) {
             throw err;
         }
-        console.log(results);
         if (results.length > 0) {
            const password = req.body.password;
            const validPassword = await bcrypt.compare(password, results[0].password);
-           console.log(validPassword);
            if(validPassword){
                req.session.username = req.body.username;
                req.session.role = 'staff';
-               res.redirect('/home');
+               res.redirect('/');
            }
             else {
 		        res.render('staff_login', { message:'Your login or password is incorrect.' });
@@ -331,6 +382,18 @@ const handleStaffLogin  = async function(req, res){
         }
     });
 };
+
+// const getFlights  = function(req, res){
+//     sql.query(queries.findAllFlights(), async (err, results, fields) => {
+//         if (err) {
+//             throw err;
+//         }
+//         else{
+//             console.log(results);
+//             return results;
+//         }
+//     });
+// };
 
 app.post('/registerCustomer', handleCustomerRegister);
 

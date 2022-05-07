@@ -14,6 +14,7 @@ const findCustomerByName = (name) => `SELECT * FROM customer WHERE name = "${nam
 const findCustomerByEmail = (email) => `SELECT * FROM customer WHERE email = "${email}"`;
 const findAgentByEmail = (email) => `SELECT * FROM booking_agent WHERE email = "${email}"`;
 const findStaffByUsername = (username) => `SELECT * FROM airline_staff WHERE username = "${username}"`;
+const findAirlineByName = (name) => `SELECT * FROM airline WHERE airline_name = "${name}"`;
 
 const saveCustomer = (body) => `
 INSERT INTO customer
@@ -22,7 +23,7 @@ VALUES ('${body.email}', '${body.name}', '${body.password}', '${body.buildingnum
 `;
 const saveAgent = (body) => `
 INSERT INTO booking_agent
-VALUES ('${body.email}', '${body.password}')
+VALUES ('${body.email}', '${body.password}', UUID())
 `;
 const saveStaff = (body) => `
 INSERT INTO airline_staff
@@ -39,6 +40,7 @@ module.exports = {
         findStaffByUsername,
         saveCustomer,
         saveAgent,
-        saveStaff
+        saveStaff,
+        findAirlineByName
     },
 }

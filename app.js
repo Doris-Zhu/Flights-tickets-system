@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
+const moment = require('moment');
 const path = require('path');
 
 const { sql, queries } = require('./db.js');
@@ -24,144 +25,171 @@ app.get('/', (req, res) => {
     res.render('home', {  });
 });
 
+const handleLogin = async (req, res, results, role) => {
+    if (results.length === 1) {
+        const correctPassword = await bcrypt.compare(req.body.password, results[0].password);
+        if (correctPassword) {
+            req.session.user = results[0];
+            req.session.role = role;
+            res.redirect('/home');
+        }
+        else {
+            res.render(`${role}_login`, { message:'Your login or password is incorrect.' });
+        }
+     }
+     else {
+         res.render(`${role}_login`, { message:'User not existed.' });
+     }
+};
+
+// LOGIN
+const handleCustomerLogin  = async function(req, res) {
+    sql.query(queries.findCustomerByEmail(req.body.email), async (err, results, fields) => {
+        if (err) {
+            throw err;
+        }
+        handleLogin(req, res, results, 'customer');
+    });
+};
+
+const handleAgentLogin  = async function(req, res) {
+    sql.query(queries.findAgentByEmail(req.body.email), async (err, results, fields) => {
+        if (err) {
+            throw err;
+        }
+        handleLogin(req, res, results, 'agent');
+    });
+};
+
+const handleStaffLogin  = async function(req, res) {
+    sql.query(queries.findStaffByUsername(req.body.username), async (err, results, fields) => {
+        if (err) {
+            throw err;
+        }
+        handleLogin(req, res, results, 'staff');
+    });
+};
+
+// LOGIN
 app.get('/login', (req, res) => {
     if (req.query.role === undefined) {
         res.render('role', { op: 'login' });
     }
     else {
-        if (req.query.role === 'Customer') {
-            res.redirect('/loginCustomer');
-        }
-        else if (req.query.role === 'Agent') {
-            res.redirect('/loginAgent');
-        }
-        else if (req.query.role === 'Staff') {
-            res.redirect('/loginStaff');
-        }
-        else {
-            throw new Error();
-        }
+        res.redirect(`/login/${req.query.role}`);
     }
 });
 
-app.get('/loginCustomer', (req, res) => {
+app.get('/login/customer', (req, res) => {
     res.render('customer_login');
 });
 
-app.get('/loginAgent', (req, res) => {
+app.post('/login/customer', handleCustomerLogin);
+
+app.get('/login/agent', (req, res) => {
     res.render('agent_login');
 });
 
-app.get('/loginStaff', (req, res) => {
+app.post('/login/agent', handleAgentLogin);
+
+app.get('/login/staff', (req, res) => {
     res.render('staff_login');
 });
 
-// handle login
-app.post('/login', (req, res) => {
-    res.render('login', {  });
-});
+app.post('/login/staff', handleStaffLogin);
+// END OF LOGIN
 
-app.get('/register', (req, res) => {
-    if (req.query.role === undefined) {
-        res.render('role', { op: 'register' });
-    }
-    else {
-        if (req.query.role === 'Customer') {
-            res.render('customer_register', {  });
-        }
-        else if (req.query.role === 'Agent') {
-            res.render('agent_register', {});
-        }
-        else if (req.query.role === 'Staff') {
-            res.render('staff_register', {});
-        }
-        else {
-            throw new Error();
-        }
-    }
-});
+// REGISTER
+const hashPassword = async (body) => {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(body.password, salt);
+    body.password = hash;
+};
 
 const handleCustomerRegister = async function(req, res) {
     const body = req.body;
-    console.log(body);
     if (body.email === '') {
-        res.render('register', { message: 'Email is required' });
+        res.render('customer_register', { message: 'Email is required' });
         return;
     }
+
     if (body.name === '') {
-        res.render('register', { message: 'Name is required' });
+        res.render('customer_register', { message: 'Name is required' });
         return;
     }
+
     if (body.password === '') {
-        res.render('register', { message: 'Password is required' });
+        res.render('customer_register', { message: 'Password is required' });
         return;
     }
-    if (body.buildingnum === '' || body.street === '' || body.city === '' || body.state === '') {
-        res.render('register', { message: 'Address information is required' });
-        return;
-    }
-    if (body.phone === '') {
-        res.render('register', { message: 'Phone number is required' });
-        return;
-    }
-    if (body.passportnum === ''|| body.exp === '' || body.passportcountry === '') {
-        res.render('register', { message: 'Passport information is required' });
-        return;
-    }
-    if (body.dob === '') {
-        res.render('register', { message: 'Date of birth is required' });
-        return;
-    } //TODO: check format
     if (body.password.length < 6) {
-        res.render('register', { message: 'Unsafe password' });
+        res.render('customer_register', { message: 'Unsafe password' });
         return;
+    }
+
+    if (body.buildingnum === '' || body.street === '' || body.city === '' || body.state === '') {
+        res.render('customer_register', { message: 'Address information is required' });
+        return;
+    }
+
+    if (body.phone === '') {
+        res.render('customer_register', { message: 'Phone number is required' });
+        return;
+    }
+
+    if (body.passportnum === ''|| body.exp === '' || body.passportcountry === '') {
+        res.render('customer_register', { message: 'Passport information is required' });
+        return;
+    }
+    if (!moment(body.exp, "YYYY-MM-DD", true).isValid()) {
+        res.render('customer_register', { message: 'Invalid date format' });
+    }
+
+    if (body.dob === '') {
+        res.render('customer_register', { message: 'Date of birth is required' });
+        return;
+    }
+    if (!moment(body.dob, "YYYY-MM-DD", true).isValid()) {
+        res.render('customer_register', { message: 'Invalid date format' });
     }
 
     sql.query(queries.findCustomerByEmail(body.email), async (err, results, fields) => {
         if (err) {
             throw err;
         }
-        console.log(results);
         if (results.length > 0) {
-            res.render('register', { message: 'This email is already registered.' });
+            res.render('customer_register', { message: 'This email is already registered.' });
         }
         else {
-            const salt = await bcrypt.genSalt(10);
-			const hash = await bcrypt.hash(body.password, salt);
-            body.password = hash;
             saveCustomerToDatabase();
         }
     });
 
-    const saveCustomerToDatabase = () => {
+    const saveCustomerToDatabase = async () => {
         console.log('saving customer');
-        body.phone = parseInt(body.phone);
-        console.log(body);
+        await hashPassword(body);
         sql.query(queries.saveCustomer(body), (err, results, fields) => {
             if (err) {
                 throw err;
             }
-            else{
-                res.redirect('/login')
-            }
-            console.log(results);
+            res.redirect('/login')
         });
     }
 };
 
 const handleAgentRegister = async function(req, res) {
     const body = req.body;
-    console.log(body);
     if (body.email === '') {
-        res.render('register', { message: 'Email is required' });
+        res.render('agent_register', { message: 'Email is required' });
         return;
     }
+
     if (body.password === '') {
-        res.render('register', { message: 'Password is required' });
+        res.render('agent_register', { message: 'Password is required' });
         return;
     }
     if (body.password.length < 6) {
-        res.render('register', { message: 'Unsafe password' });
+        res.render('agent_register', { message: 'Unsafe password' });
         return;
     }
 
@@ -169,59 +197,57 @@ const handleAgentRegister = async function(req, res) {
         if (err) {
             throw err;
         }
-        console.log(results);
         if (results.length > 0) {
-            res.render('register', { message: 'This email is already registered.' });
+            res.render('agent_register', { message: 'This email is already registered.' });
         }
         else {
-            const salt = await bcrypt.genSalt(10);
-			const hash = await bcrypt.hash(body.password, salt);
-            body.password = hash;
             saveAgentToDatabase();
         }
     });
 
-    const saveAgentToDatabase = () => {
+    const saveAgentToDatabase = async () => {
         console.log('saving agent');
-        console.log(body);
+        await hashPassword(body);
         sql.query(queries.saveAgent(body), (err, results, fields) => {
             if (err) {
                 throw err;
             }
-            else{
-                res.redirect('/login')
-            }
-            console.log(results);
+            res.redirect('/login')
         });
     }
 };
 
 const handleStaffRegister = async function(req, res) {
     const body = req.body;
-    console.log(body);
     if (body.username === '') {
-        res.render('register', { message: 'Username is required' });
-        return;
-    }
-    if (body.password === '') {
-        res.render('register', { message: 'Password is required' });
-        return;
-    }
-    if (body.firstname === '' || body.lastname === '') {
-        res.render('register', { message: 'Firstname and lastname are both required' });
+        res.render('staff_register', { message: 'Username is required' });
         return;
     }
 
-    if (body.airlinename === '') {
-        res.render('register', { message: 'Airline name is required' });
+    if (body.password === '') {
+        res.render('staff_register', { message: 'Password is required' });
         return;
-    }//check airline name
-    if (body.dob === '') {
-        res.render('register', { message: 'Date of birth is required' });
-        return;
-    } //TODO: check format
+    }
     if (body.password.length < 6) {
-        res.render('register', { message: 'Unsafe password' });
+        res.render('staff_register', { message: 'Unsafe password' });
+        return;
+    }
+
+    if (body.firstname === '' || body.lastname === '') {
+        res.render('staff_register', { message: 'Firstname and lastname are required' });
+        return;
+    }
+
+    if (body.dob === '') {
+        res.render('staff_register', { message: 'Date of birth is required' });
+        return;
+    }
+    if (!moment(body.dob, "YYYY-MM-DD", true).isValid()) {
+        res.render('staff_register', { message: 'Invalid date format' });
+    }
+    
+    if (body.airlinename === '') {
+        res.render('staff_register', { message: 'Airline name is required' });
         return;
     }
 
@@ -229,121 +255,67 @@ const handleStaffRegister = async function(req, res) {
         if (err) {
             throw err;
         }
-        console.log(results);
         if (results.length > 0) {
-            res.render('register', { message: 'This username is already registered.' });
+            res.render('staff_register', { message: 'This username is already registered.' });
         }
         else {
-            const salt = await bcrypt.genSalt(10);
-			const hash = await bcrypt.hash(body.password, salt);
-            body.password = hash;
-            saveStaffToDatabase();
+            checkAirlineName();
         }
     });
 
-    const saveStaffToDatabase = () => {
+    const checkAirlineName = () => {
+        sql.query(queries.findAirlineByName(body.airlinename), async (err, results, fields) => {
+            if (err) {
+                throw err;
+            }
+            if (results.length === 0) {
+                res.render('staff_register', { message: 'Airline is not in database' });
+            }
+            else {
+                saveStaffToDatabase();
+            }
+        });
+    };
+
+    const saveStaffToDatabase = async () => {
         console.log('saving staff');
-        console.log(body);
+        await hashPassword(body);
         sql.query(queries.saveStaff(body), (err, results, fields) => {
             if (err) {
                 throw err;
             }
-            else{
-                res.redirect('/login')
-            }
-            console.log(results);
+            res.redirect('/login')
         });
     }
 };
 
-const handleCustomerLogin  = async function(req, res){
-    sql.query(queries.findCustomerByEmail(req.body.email), async (err, results, fields) => {
-        if (err) {
-            throw err;
-        }
-        console.log(results);
-        if (results.length > 0) {
-           const password = req.body.password;
-           const validPassword = await bcrypt.compare(password, results[0].password);
-           console.log(validPassword);
-           if(validPassword){
-               req.session.email = req.body.email;
-               req.session.role = 'customer';
-               res.redirect('/home');
-           }
-            else {
-		        res.render('customer_login', { message:'Your login or password is incorrect.' });
-		    }
-        }
-        else {
-            res.render('customer_login', { message:'User not existed.' });
-        }
-    });
-};
+app.get('/register', (req, res) => {
+    if (req.query.role === undefined) {
+        res.render('role', { op: 'register' });
+    }
+    else {
+        res.redirect(`/register/${req.query.role}`);
+    }
+});
 
-const handleAgentLogin  = async function(req, res){
-    sql.query(queries.findAgentByEmail(req.body.email), async (err, results, fields) => {
-        if (err) {
-            throw err;
-        }
-        console.log(results);
-        if (results.length > 0) {
-           const password = req.body.password;
-           const validPassword = await bcrypt.compare(password, results[0].password);
-           console.log(validPassword);
-           if(validPassword){
-               req.session.email = req.body.email;
-               req.session.role = 'agent';
-               res.redirect('/home');
-           }
-            else {
-		        res.render('agent_login', { message:'Your login or password is incorrect.' });
-		    }
-        }
-        else {
-            res.render('agent_login', { message:'User not existed.' });
-        }
-    });
-};
+app.get('/register/customer', (req, res) => {
+    res.render('customer_register');
+});
 
-const handleStaffLogin  = async function(req, res){
-    console.log('hi');
-    sql.query(queries.findStaffByUsername(req.body.username), async (err, results, fields) => {
-        if (err) {
-            throw err;
-        }
-        console.log(results);
-        if (results.length > 0) {
-           const password = req.body.password;
-           const validPassword = await bcrypt.compare(password, results[0].password);
-           console.log(validPassword);
-           if(validPassword){
-               req.session.username = req.body.username;
-               req.session.role = 'staff';
-               res.redirect('/home');
-           }
-            else {
-		        res.render('staff_login', { message:'Your login or password is incorrect.' });
-		    }
-        }
-        else {
-            res.render('staff_login', { message:'User not existed.' });
-        }
-    });
-};
+app.post('/register/customer', handleCustomerRegister);
 
-app.post('/registerCustomer', handleCustomerRegister);
+app.get('/register/agent', (req, res) => {
+    res.render('agent_register');
+});
 
-app.post('/registerAgent', handleAgentRegister);
+app.post('/register/agent', handleAgentRegister);
 
-app.post('/registerStaff', handleStaffRegister);
+app.get('/register/staff', (req, res) => {
+    res.render('staff_register');
+});
 
-app.post('/loginCustomer', handleCustomerLogin);
+app.post('/register/staff', handleStaffRegister);
 
-app.post('/loginAgent', handleAgentLogin);
-
-app.post('/loginStaff', handleStaffLogin);
-
-app.post('/')
+app.post('/');
 
 app.listen(PORT, () => console.log(`listening to port ${PORT}`));

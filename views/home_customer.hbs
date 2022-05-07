@@ -26,6 +26,21 @@
                     <th scope="col">Status</th>
                     <th scope="col">Purchase</th>
                 </tr>
+                {{#each flights as |f|}}
+                    <tr>
+                        <td scope="row">{{f.airline_name}}</td>
+                        <td>{{f.flight_num}}</td>
+                        <td>{{f.departure_airport}}</td>
+                        <td>{{f.arrival_airport}}</td>
+                        <td>{{f.departure_time}}</td>
+                        <td>{{f.status}}</td>
+                        <td>
+                            <input type="radio" name="purchase" value={{f.flight_num}} />
+                        </td>
+                    </tr>
+                {{/each}}
+            </table>
+        </form>
             {{/each}}
         </table>
     {{else}}

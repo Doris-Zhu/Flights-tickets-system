@@ -159,13 +159,9 @@ const handleCustomerRegister = async function(req, res) {
         res.render('customer_register', { message: 'This email is already registered.' });
     }
     else {
-        saveCustomerToDatabase();
-    }
-
-    const saveCustomerToDatabase = async () => {
         console.log('saving customer');
         await hashPassword(body);
-        const results = await sql(queries.saveCustomer(body));
+        await sql(queries.saveCustomer(body));
         res.redirect('/login');
     }
 };
@@ -191,10 +187,6 @@ const handleAgentRegister = async function(req, res) {
         res.render('agent_register', { message: 'This email is already registered.' });
     }
     else {
-        saveAgentToDatabase();
-    }
-
-    const saveAgentToDatabase = async () => {
         console.log('saving agent');
         await hashPassword(body);
         body.id = Math.floor(Math.random() * (2**31 - 1));
@@ -243,24 +235,16 @@ const handleStaffRegister = async function(req, res) {
         res.render('staff_register', { message: 'This username is already registered.' });
     }
     else {
-        checkAirlineName();
-    }
-
-    const checkAirlineName = async () => {
         const results = await sql(queries.findAirlineByName(body.airline));
         if (results.length === 0) {
             res.render('staff_register', { message: 'Airline is not in database' });
         }
         else {
-            saveStaffToDatabase();
+            console.log('saving staff');
+            await hashPassword(body);
+            await sql(queries.saveStaff(body));
+            res.redirect('/login');
         }
-    };
-
-    const saveStaffToDatabase = async () => {
-        console.log('saving staff');
-        await hashPassword(body);
-        const results = await sql(queries.saveStaff(body));
-        res.redirect('/login');
     }
 };
 
@@ -294,23 +278,7 @@ app.post('/register/staff', handleStaffRegister);
 // STAFF
 async function getPermission(username) {
     let permission = 'None'
-    permission = await sql.execute(queries.getPermission(username));
-    // , (err, results, fields) => {
-    //     if (err) {
-    //         throw err;
-    //     }
-    //     if (results.length === 0) {
-    //         return;
-    //     }
-    //     else if (results.length === 1) {
-    //         console.log(results[0].permission_type);
-    //         permission = results[0].permission_type;
-    //         return permission;
-    //     }
-    //     else {
-    //         throw new Error();
-    //     }
-    // });
+    permission = await sql(queries.getPermission(username));
     console.log('out', permission);
     return permission;
 }

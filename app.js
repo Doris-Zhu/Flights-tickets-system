@@ -30,7 +30,7 @@ app.get('/logout', (req, res) => {
 
 // HOME
 const handleGetHome = async function(req, res) {
-    const [results] = await sql(queries.findAllFlights());
+    const results = await sql(queries.findAllFlights());
     res.render('home_staff', { flights: results });
 };
 
@@ -39,10 +39,10 @@ app.get('/', handleGetHome);
 
 // LOGIN
 const handleLogin = async (req, res, results, role) => {
-    if (results) {
-        const correctPassword = await bcrypt.compare(req.body.password, results.password);
+    if (results.length === 1) {
+        const correctPassword = await bcrypt.compare(req.body.password, results[0].password);
         if (correctPassword) {
-            req.session.user = results;
+            req.session.user = results[0];
             req.session.role = role;
             res.redirect('/');
         }
@@ -56,17 +56,17 @@ const handleLogin = async (req, res, results, role) => {
 };
 
 const handleCustomerLogin  = async function(req, res) {
-    const [results] = await sql(queries.findCustomerByEmail(req.body.email));
+    const results = await sql(queries.findCustomerByEmail(req.body.email));
     handleLogin(req, res, results, 'customer');
 };
 
 const handleAgentLogin  = async function(req, res) {
-    const [results] = await sql(queries.findAgentByEmail(req.body.email));
+    const results = await sql(queries.findAgentByEmail(req.body.email));
     handleLogin(req, res, results, 'agent');
 };
 
 const handleStaffLogin  = async function(req, res) {
-    const [results] = await sql(queries.findStaffByUsername(req.body.username));
+    const results = await sql(queries.findStaffByUsername(req.body.username));
     handleLogin(req, res, results, 'staff');
 };
 
@@ -154,7 +154,7 @@ const handleCustomerRegister = async function(req, res) {
         return;
     }
 
-    const [results] = await sql(queries.findCustomerByEmail(body.email));
+    const results = await sql(queries.findCustomerByEmail(body.email));
     if (results.length > 0) {
         res.render('customer_register', { message: 'This email is already registered.' });
     }
@@ -165,7 +165,7 @@ const handleCustomerRegister = async function(req, res) {
     const saveCustomerToDatabase = async () => {
         console.log('saving customer');
         await hashPassword(body);
-        const [results] = await sql(queries.saveCustomer(body));
+        const results = await sql(queries.saveCustomer(body));
         res.redirect('/login');
     }
 };
@@ -186,7 +186,7 @@ const handleAgentRegister = async function(req, res) {
         return;
     }
 
-    const [results] = await sql(queries.findAgentByEmail(body.email));
+    const results = await sql(queries.findAgentByEmail(body.email));
     if (results.length > 0) {
         res.render('agent_register', { message: 'This email is already registered.' });
     }
@@ -198,7 +198,7 @@ const handleAgentRegister = async function(req, res) {
         console.log('saving agent');
         await hashPassword(body);
         body.id = Math.floor(Math.random() * (2**31 - 1));
-        const [results] = await sql(queries.saveAgent(body));
+        const results = await sql(queries.saveAgent(body));
         res.redirect('/login');
     }
 };
@@ -238,7 +238,7 @@ const handleStaffRegister = async function(req, res) {
         return;
     }
 
-    const [results] = await sql(queries.findStaffByUsername(body.username));
+    const results = await sql(queries.findStaffByUsername(body.username));
     if (results.length > 0) {
         res.render('staff_register', { message: 'This username is already registered.' });
     }
@@ -247,7 +247,7 @@ const handleStaffRegister = async function(req, res) {
     }
 
     const checkAirlineName = async () => {
-        const [results] = await sql(queries.findAirlineByName(body.airline));
+        const results = await sql(queries.findAirlineByName(body.airline));
         if (results.length === 0) {
             res.render('staff_register', { message: 'Airline is not in database' });
         }
@@ -259,7 +259,7 @@ const handleStaffRegister = async function(req, res) {
     const saveStaffToDatabase = async () => {
         console.log('saving staff');
         await hashPassword(body);
-        const [results] = await sql(queries.saveStaff(body));
+        const results = await sql(queries.saveStaff(body));
         res.redirect('/login');
     }
 };

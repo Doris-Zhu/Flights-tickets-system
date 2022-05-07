@@ -31,13 +31,7 @@ app.get('/logout', (req, res) => {
 
 // HOME
 const handleGetHome = async function(req, res) {
-    let flights;
-    if (req.query.search === undefined || req.query.search === '') {
-        flights = await sql(queries.findAllFlights());
-    }
-    else {
-        flights = await sql(queries.findFlights(req.query.search));
-    }
+    const flights = await sql(queries.findFlights(req.query.search));
 
     if (req.session.role === undefined) {
         res.render('home', { flights });

@@ -15,7 +15,7 @@
         <input class="btn btn-outline-success" style="margin-top: 5px;" type="submit" value="submit">
     </form>
     {{#if flights}}
-        <form action="/">
+        <form action="/purchase" method="POST">
             <table class="table table-striped diytable">
                 <tr>
                     <th scope="col">Airline</th>
@@ -35,14 +35,13 @@
                         <td>{{f.departure_time}}</td>
                         <td>{{f.status}}</td>
                         <td>
-                            <input type="radio" name="purchase" value={{f.flight_num}} />
+                            <input type="radio" name="purchase" value='{"num": "{{f.flight_num}}", "airline": "{{f.airline_name}}"}' />
                         </td>
                     </tr>
                 {{/each}}
             </table>
+            <input type="submit" class="btn btn-success" value="Purchase this ticket!">
         </form>
-            {{/each}}
-        </table>
     {{else}}
         <p style="color:red;">No flight</p>
     {{/if}}

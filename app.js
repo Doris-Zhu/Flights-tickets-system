@@ -51,13 +51,24 @@ app.get('/', handleGetHome);
 // END OF HOME
 
 //INFO
-app.get('/myinfo', (req, res) => {
+app.get('/myinfo', async (req, res) => {
 	const role = req.session.role;
-    if(role == 'customer'){
-        res.render('view_customer', {myflights: myflights})
+    if (role == 'customer') {
+        const myflights = await sql(queries.findMyFlights(req.session.user.email));
+        res.render('view_customer', { myflights: myflights });
     }
-
 });
+
+app.post('/purchase', async (req, res) => {
+    const obj = JSON.parse(req.body.purchase);
+    obj.id = Math.floor(Math.random() * (2**31 - 1));
+    obj.email = req.session.user.email;
+    obj.date = new Date().toISOString().slice(0, 10);
+    await sql(queries.createTicket(obj));
+    await sql(queries.createPurchase(obj));
+    res.redirect('/myinfo');
+});
+
 //END OF INFO
 
 // LOGIN

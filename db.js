@@ -73,6 +73,16 @@ and ticket.ticket_id = purchases.ticket_id
 and purchases.customer_email = ${email}
 `
 
+const createTicket = (obj) => `
+INSERT INTO ticket
+VALUES ('${obj.id}', '${obj.airline}', '${obj.num}')
+`;
+
+const createPurchase = (obj) => `
+INSERT INTO purchases
+VALUES ('${obj.id}', '${obj.email}', NULL, '${obj.date}')
+`;
+
 module.exports = {
     sql,
     queries: {
@@ -87,6 +97,8 @@ module.exports = {
         findFlights,
         addFlight,
         getPermission,
-        findMyFlights
+        findMyFlights,
+        createTicket,
+        createPurchase
     },
 }

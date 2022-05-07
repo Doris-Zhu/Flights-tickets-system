@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 
 const connectionConfig = {
-    host: 'localhost',
+    host: '192.168.64.2',
     user: 'ATRS',
     database: 'atrs',
 };
@@ -16,15 +16,34 @@ connection.connect(err => {
 });
 
 const findCustomerByName = (name) => `SELECT * FROM customer WHERE name = "${name}"`;
-const saveCustomer = (name, pwd) => `
+const findCustomerByEmail = (email) => `SELECT * FROM customer WHERE email = "${email}"`;
+const findAgentByEmail = (email) => `SELECT * FROM booking_agent WHERE email = "${email}"`;
+const findStaffByUsername = (username) => `SELECT * FROM airline_staff WHERE username = "${username}"`;
+
+const saveCustomer = (body) => `
 INSERT INTO customer
-VALUES ('${name}@gmail.com', '${name}', '${pwd}', 'a', 'a', 'a', 'a', '1', 'a', '2022-05-03', 'a', '2022-05-03')
+VALUES ('${body.email}', '${body.name}', '${body.password}', '${body.buildingnum}', '${body.street}', 
+'${body.city}', '${body.state}', '${body.phone}', '${body.passportnum}', '${body.exp}', '${body.passportcountry}', '${body.dob}')
+`;
+const saveAgent = (body) => `
+INSERT INTO booking_agent
+VALUES ('${body.email}', '${body.password}')
+`;
+const saveStaff = (body) => `
+INSERT INTO airline_staff
+VALUES ('${body.username}', '${body.password}', '${body.firstname}', '${body.lastname}', 
+'${body.dob}', '${body.airline}')
 `;
 
 module.exports = {
     sql: connection, 
     queries: {
         findCustomerByName,
+        findCustomerByEmail,
+        findAgentByEmail,
+        findStaffByUsername,
         saveCustomer,
+        saveAgent,
+        saveStaff
     },
 }

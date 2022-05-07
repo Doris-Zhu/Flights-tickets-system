@@ -2,26 +2,26 @@
     <div class="card border-0 shadow rounded-3 my-5">
         <div class="card-body p-4 p-sm-5" style="background-color: beige;">
             <h5 class="card-title text-center mb-5 fw-light fs-5">
-                Sign In As Customer
+                Sign Up as a Booking Agent
             </h5>
             <p style="color:red;">
                 {{message}}
             </p>
-            <form method="POST" action="/login">
+            <form method="POST" action="/registerAgent">
                 <div class='form-row'>
-                    <label>Email Address:&nbsp;</label>
-                    <input name="username" type="text" style="margin-left: 3px;">
+                    <label>Email:&nbsp;</label>
+                    <input name="email" type="text" style="margin-left: 3px;">
                 </div>
                 <div class='form-row' style="margin-top:10px;">
                     <label>Password:&nbsp;</label>
                     <input name="password" type="password" style="margin-left: 3px;">
                 </div>
                 <div class='form-row'>
-                    <input type="submit" class="submit btn btn-success" value="Login">
+                    <input type="submit" class="submit btn btn-success" value="Register">
                 </div>
                 <div class='form-row'>
-                    Don't have an account?&nbsp;
-                    <a href="/register">Register</a>
+                    Already have an account?&nbsp;
+                    <a href="/login">Login</a>
                     .
                 </div>
             </form>

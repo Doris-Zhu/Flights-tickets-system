@@ -38,6 +38,12 @@ SELECT * FROM flight WHERE departure_airport = '${keyword}'
 or arrival_airport = '${keyword}'
 `;
 
+const addFlight = (body) => `
+INSERT INTO flight
+VALUES ('${body.flightName}’, '${body.flightNum}’, '${body.depAirport}’, '${body.depTime}’, '${body.arrAirport}’, 
+'${body.arrTime}’, '${body.price}’, '${body.status}’, '${body.airplane}’)
+`;
+
 module.exports = {
     sql: connection, 
     queries: {
@@ -51,5 +57,6 @@ module.exports = {
         findAirlineByName,
         findAllFlights,
         findFlights,
+        addFlight
     },
 }

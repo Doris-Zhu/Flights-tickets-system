@@ -80,7 +80,7 @@ const handleLogin = async (req, res, results, role) => {
         if (correctPassword) {
             req.session.user = results[0];
             req.session.role = role;
-            res.redirect('/home');
+            res.redirect('/');
         }
         else {
             res.render(`${role}_login`, { message:'Your login or password is incorrect.' });
@@ -101,10 +101,12 @@ const handleCustomerLogin  = async function(req, res) {
 };
 
 const handleAgentLogin  = async function(req, res) {
+    console.log(req.body.email);
     sql.query(queries.findAgentByEmail(req.body.email), async (err, results, fields) => {
         if (err) {
             throw err;
         }
+        console.log('agent', results);
         handleLogin(req, res, results, 'agent');
     });
 };
@@ -255,7 +257,7 @@ const handleAgentRegister = async function(req, res) {
     const saveAgentToDatabase = async () => {
         console.log('saving agent');
         await hashPassword(body);
-        body.id = Math.floor(Math.random() * 10**12);
+        body.id = Math.floor(Math.random() * (2**31 - 1));
         sql.query(queries.saveAgent(body), (err, results, fields) => {
             if (err) {
                 throw err;

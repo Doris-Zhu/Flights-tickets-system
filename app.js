@@ -29,45 +29,9 @@ app.get('/logout', (req, res) => {
 });
 
 // HOME
-const handleGetHome = function(req, res) {
-    if (req.query.search === undefined || req.query.search === '') {
-        sql.query(queries.findAllFlights(), async (err, results, fields) => {
-            if (err) {
-                throw err;
-            }
-            const flights = results;
-            if (req.session.role === 'customer') {
-                res.render('home_customer', { user: req.session.user.email, flights: flights });
-            }
-            else if (req.session.role === 'agent') {
-                res.render('home_agent', { user: req.session.user.email, flights: flights });
-            }
-            else if (req.session.role === 'staff') {
-                res.render('home_staff', { user: req.session.user.username, flights: flights });
-            }
-        });
-    }
-    else {
-        sql.query(queries.findFlights(req.query.search), async (err, results, fields) => {
-            console.log(req.query.search);
-            if (err) {
-                throw err;
-            }
-            else {
-                const flights = results;
-                console.log('post', flights);
-                if (req.session.role === 'customer') {
-                    res.render('home_customer', {user: req.session.user.email, flights: flights});
-                }
-                else if (req.session.role === 'agent') {
-                    res.render('home_agent', {user: req.session.user.email, flights: flights});
-                }
-                else if (req.session.role === 'staff') {
-                    res.render('home_staff', {user: req.session.user.username, flights: flights});
-                }
-            }
-        });
-    }
+const handleGetHome = async function(req, res) {
+    const [results] = await sql(queries.findAllFlights());
+    res.render('home_staff', { flights: results });
 };
 
 app.get('/', handleGetHome);
@@ -75,10 +39,10 @@ app.get('/', handleGetHome);
 
 // LOGIN
 const handleLogin = async (req, res, results, role) => {
-    if (results.length === 1) {
-        const correctPassword = await bcrypt.compare(req.body.password, results[0].password);
+    if (results) {
+        const correctPassword = await bcrypt.compare(req.body.password, results.password);
         if (correctPassword) {
-            req.session.user = results[0];
+            req.session.user = results;
             req.session.role = role;
             res.redirect('/');
         }
@@ -92,32 +56,18 @@ const handleLogin = async (req, res, results, role) => {
 };
 
 const handleCustomerLogin  = async function(req, res) {
-    sql.query(queries.findCustomerByEmail(req.body.email), async (err, results, fields) => {
-        if (err) {
-            throw err;
-        }
-        handleLogin(req, res, results, 'customer');
-    });
+    const [results] = await sql(queries.findCustomerByEmail(req.body.email));
+    handleLogin(req, res, results, 'customer');
 };
 
 const handleAgentLogin  = async function(req, res) {
-    console.log(req.body.email);
-    sql.query(queries.findAgentByEmail(req.body.email), async (err, results, fields) => {
-        if (err) {
-            throw err;
-        }
-        console.log('agent', results);
-        handleLogin(req, res, results, 'agent');
-    });
+    const [results] = await sql(queries.findAgentByEmail(req.body.email));
+    handleLogin(req, res, results, 'agent');
 };
 
 const handleStaffLogin  = async function(req, res) {
-    sql.query(queries.findStaffByUsername(req.body.username), async (err, results, fields) => {
-        if (err) {
-            throw err;
-        }
-        handleLogin(req, res, results, 'staff');
-    });
+    const [results] = await sql(queries.findStaffByUsername(req.body.username));
+    handleLogin(req, res, results, 'staff');
 };
 
 app.get('/login', (req, res) => {
@@ -192,6 +142,7 @@ const handleCustomerRegister = async function(req, res) {
     }
     if (!moment(body.exp, "YYYY-MM-DD", true).isValid()) {
         res.render('customer_register', { message: 'Invalid date format' });
+        return;
     }
 
     if (body.dob === '') {
@@ -200,29 +151,22 @@ const handleCustomerRegister = async function(req, res) {
     }
     if (!moment(body.dob, "YYYY-MM-DD", true).isValid()) {
         res.render('customer_register', { message: 'Invalid date format' });
+        return;
     }
 
-    sql.query(queries.findCustomerByEmail(body.email), async (err, results, fields) => {
-        if (err) {
-            throw err;
-        }
-        if (results.length > 0) {
-            res.render('customer_register', { message: 'This email is already registered.' });
-        }
-        else {
-            saveCustomerToDatabase();
-        }
-    });
+    const [results] = await sql(queries.findCustomerByEmail(body.email));
+    if (results.length > 0) {
+        res.render('customer_register', { message: 'This email is already registered.' });
+    }
+    else {
+        saveCustomerToDatabase();
+    }
 
     const saveCustomerToDatabase = async () => {
         console.log('saving customer');
         await hashPassword(body);
-        sql.query(queries.saveCustomer(body), (err, results, fields) => {
-            if (err) {
-                throw err;
-            }
-            res.redirect('/login')
-        });
+        const [results] = await sql(queries.saveCustomer(body));
+        res.redirect('/login');
     }
 };
 
@@ -242,28 +186,20 @@ const handleAgentRegister = async function(req, res) {
         return;
     }
 
-    sql.query(queries.findAgentByEmail(body.email), async (err, results, fields) => {
-        if (err) {
-            throw err;
-        }
-        if (results.length > 0) {
-            res.render('agent_register', { message: 'This email is already registered.' });
-        }
-        else {
-            saveAgentToDatabase();
-        }
-    });
+    const [results] = await sql(queries.findAgentByEmail(body.email));
+    if (results.length > 0) {
+        res.render('agent_register', { message: 'This email is already registered.' });
+    }
+    else {
+        saveAgentToDatabase();
+    }
 
     const saveAgentToDatabase = async () => {
         console.log('saving agent');
         await hashPassword(body);
         body.id = Math.floor(Math.random() * (2**31 - 1));
-        sql.query(queries.saveAgent(body), (err, results, fields) => {
-            if (err) {
-                throw err;
-            }
-            res.redirect('/login')
-        });
+        const [results] = await sql(queries.saveAgent(body));
+        res.redirect('/login');
     }
 };
 
@@ -294,6 +230,7 @@ const handleStaffRegister = async function(req, res) {
     }
     if (!moment(body.dob, "YYYY-MM-DD", true).isValid()) {
         res.render('staff_register', { message: 'Invalid date format' });
+        return;
     }
     
     if (body.airlinename === '') {
@@ -301,41 +238,29 @@ const handleStaffRegister = async function(req, res) {
         return;
     }
 
-    sql.query(queries.findStaffByUsername(body.username), async (err, results, fields) => {
-        if (err) {
-            throw err;
-        }
-        if (results.length > 0) {
-            res.render('staff_register', { message: 'This username is already registered.' });
+    const [results] = await sql(queries.findStaffByUsername(body.username));
+    if (results.length > 0) {
+        res.render('staff_register', { message: 'This username is already registered.' });
+    }
+    else {
+        checkAirlineName();
+    }
+
+    const checkAirlineName = async () => {
+        const [results] = await sql(queries.findAirlineByName(body.airline));
+        if (results.length === 0) {
+            res.render('staff_register', { message: 'Airline is not in database' });
         }
         else {
-            checkAirlineName();
+            saveStaffToDatabase();
         }
-    });
-
-    const checkAirlineName = () => {
-        sql.query(queries.findAirlineByName(body.airlinename), async (err, results, fields) => {
-            if (err) {
-                throw err;
-            }
-            if (results.length === 0) {
-                res.render('staff_register', { message: 'Airline is not in database' });
-            }
-            else {
-                saveStaffToDatabase();
-            }
-        });
     };
 
     const saveStaffToDatabase = async () => {
         console.log('saving staff');
         await hashPassword(body);
-        sql.query(queries.saveStaff(body), (err, results, fields) => {
-            if (err) {
-                throw err;
-            }
-            res.redirect('/login')
-        });
+        const [results] = await sql(queries.saveStaff(body));
+        res.redirect('/login');
     }
 };
 
@@ -366,6 +291,28 @@ app.get('/register/staff', (req, res) => {
 
 app.post('/register/staff', handleStaffRegister);
 
-app.post('/');
+// STAFF
+async function getPermission(username) {
+    let permission = 'None'
+    permission = await sql.execute(queries.getPermission(username));
+    // , (err, results, fields) => {
+    //     if (err) {
+    //         throw err;
+    //     }
+    //     if (results.length === 0) {
+    //         return;
+    //     }
+    //     else if (results.length === 1) {
+    //         console.log(results[0].permission_type);
+    //         permission = results[0].permission_type;
+    //         return permission;
+    //     }
+    //     else {
+    //         throw new Error();
+    //     }
+    // });
+    console.log('out', permission);
+    return permission;
+}
 
 app.listen(PORT, () => console.log(`listening to port ${PORT}`));

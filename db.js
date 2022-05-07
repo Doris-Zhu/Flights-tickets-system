@@ -31,6 +31,13 @@ VALUES ('${body.username}', '${body.password}', '${body.firstname}', '${body.las
 '${body.dob}', '${body.airline}')
 `;
 
+const findAllFlights = () => `SELECT * FROM flight`;
+
+const findFlights = (keyword) => `
+SELECT * FROM flight WHERE departure_airport = "${keyword}"
+or arrival_airport = "${keyword}"
+`;
+
 module.exports = {
     sql: connection, 
     queries: {
@@ -41,6 +48,8 @@ module.exports = {
         saveCustomer,
         saveAgent,
         saveStaff,
-        findAirlineByName
+        findAirlineByName,
+        findAllFlights,
+        findFlights,
     },
 }

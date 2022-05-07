@@ -21,10 +21,59 @@ app.use(session({
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
-    res.render('home', {  });
+app.get('/logout', (req, res) => {
+	req.user = undefined;
+    req.session.user = undefined;
+    req.session.role = undefined;
+	res.redirect('/');
 });
 
+// HOME
+const handleGetHome = function(req, res) {
+    if (req.query.search === undefined || req.query.search === '') {
+        sql.query(queries.findAllFlights(), async (err, results, fields) => {
+            if (err) {
+                throw err;
+            }
+            const flights = results;
+            if (req.session.role === 'customer') {
+                res.render('home_customer', { user: req.session.user.email, flights: flights });
+            }
+            else if (req.session.role === 'agent') {
+                res.render('home_agent', { user: req.session.user.email, flights: flights });
+            }
+            else if (req.session.role === 'staff') {
+                res.render('home_staff', { user: req.session.user.username, flights: flights });
+            }
+        });
+    }
+    else {
+        sql.query(queries.findFlights(req.query.search), async (err, results, fields) => {
+            console.log(req.query.search);
+            if (err) {
+                throw err;
+            }
+            else {
+                const flights = results;
+                console.log('post', flights);
+                if (req.session.role === 'customer') {
+                    res.render('home_customer', {user: req.session.user.email, flights: flights});
+                }
+                else if (req.session.role === 'agent') {
+                    res.render('home_agent', {user: req.session.user.email, flights: flights});
+                }
+                else if (req.session.role === 'staff') {
+                    res.render('home_staff', {user: req.session.user.username, flights: flights});
+                }
+            }
+        });
+    }
+};
+
+app.get('/', handleGetHome);
+// END OF HOME
+
+// LOGIN
 const handleLogin = async (req, res, results, role) => {
     if (results.length === 1) {
         const correctPassword = await bcrypt.compare(req.body.password, results[0].password);
@@ -42,7 +91,6 @@ const handleLogin = async (req, res, results, role) => {
      }
 };
 
-// LOGIN
 const handleCustomerLogin  = async function(req, res) {
     sql.query(queries.findCustomerByEmail(req.body.email), async (err, results, fields) => {
         if (err) {
@@ -70,7 +118,6 @@ const handleStaffLogin  = async function(req, res) {
     });
 };
 
-// LOGIN
 app.get('/login', (req, res) => {
     if (req.query.role === undefined) {
         res.render('role', { op: 'login' });

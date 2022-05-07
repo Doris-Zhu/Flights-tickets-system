@@ -1,6 +1,6 @@
 {{#if user}}
     <p>
-        Hi {{user.username}}. Welcome to ATRS!
+        Hi {{user}}. Welcome to ATRS!
     </p>
 {{else}}
     <div class="lr">
@@ -15,19 +15,23 @@
         <input class="btn btn-outline-success" style="margin-top: 5px;" type="submit" value="submit">
     </form>
     {{#if flights}}
-        <table>
+        <table class="table table-striped diytable">
             <tr>
-                <th>Flight Number</th>
-                <th>Departure Airport</th>
-                <th>Destination Airport</th>
-                <th>Date</th>
+                <th scope="col">Airline</th>
+                <th scope="col">Flight Number</th>
+                <th scope="col">Departure Airport</th>
+                <th scope="col">Destination Airport</th>
+                <th scope="col">Date</th>
+                <th scope="col">Status</th>
             </tr>
             {{#each flights as |f|}}
                 <tr>
+                    <td scope="row">{{f.airline_name}}</td>
                     <td>{{f.flight_num}}</td>
                     <td>{{f.departure_airport}}</td>
                     <td>{{f.arrival_airport}}</td>
                     <td>{{f.departure_time}}</td>
+                    <td>{{f.status}}</td>
                 </tr>
             {{/each}}
         </table>

@@ -43,6 +43,13 @@ const handleGetHome = async function(req, res) {
         const operator = permission === 'Operator';
         res.render(`home_staff`, { user: req.session.username, flights, admin, operator });
     }
+    else if(req.session.role === 'agent'){
+        let airlines = await sql(queries.findAgentAirlines(req.session.user.email));
+        airlines = airlines.map(a => a.airline_name);
+        console.log(airlines);
+        const agentFlights = flights.map(f => ({ ...f, myAirline: airlines.includes(f.airline_name)}))
+        res.render('home_agent', {user:req.session.username, flights: agentFlights})
+    }
     else {
         res.render(`home_${req.session.role}`, { user: req.session.username, flights });
     }
@@ -61,6 +68,11 @@ app.get('/myinfo', async (req, res) => {
         monthlySpending = monthlySpending.map(m => ({ month: m.month, p: parseInt(m.p), curr:m.curr }));
         console.log(monthlySpending);
         res.render('view_customer', { myflights: flights, spending: totalSpending[0].p, monthly: monthlySpending});
+    }
+    else if (role == 'agent') {
+        const flights = await sql(queries.findAgentFlights(req.session.user.booking_agent_id));
+        console.log(flights);
+        res.render('view_agent', { myflights: flights});
     }
 });
 

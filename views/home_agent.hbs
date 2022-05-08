@@ -23,6 +23,8 @@
                 <th scope="col">Destination Airport</th>
                 <th scope="col">Date</th>
                 <th scope="col">Status</th>
+                <th scope="col">Purchase</th>
+                <th scope="col">For</th>
             </tr>
             {{#each flights as |f|}}
                 <tr>
@@ -32,6 +34,15 @@
                     <td>{{f.arrival_airport}}</td>
                     <td>{{f.departure_time}}</td>
                     <td>{{f.status}}</td>
+
+                    {{#if f.myAirline}}
+                    <td>
+                        <input type="radio" name="purchase" value={{f.flight_num}} />
+                    </td>
+                    <td>
+                        <input type="text" name="forCustomer" />
+                    </td>
+                    {{/if}}
                 </tr>
             {{/each}}
         </table>

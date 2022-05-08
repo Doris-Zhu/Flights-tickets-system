@@ -10,23 +10,33 @@ async function sql(query) {
 
 queries = {
 findCustomerByName: (name) => `
-SELECT * FROM customer WHERE name = '${name}'
+SELECT *
+FROM customer
+WHERE name = '${name}'
 `,
 
 findCustomerByEmail: (email) => `
-SELECT * FROM customer WHERE email = '${email}'
+SELECT *
+FROM customer
+WHERE email = '${email}'
 `,
 
 findAgentByEmail: (email) => `
-SELECT * FROM booking_agent WHERE email = '${email}'
+SELECT *
+FROM booking_agent
+WHERE email = '${email}'
 `,
 
 findStaffByUsername: (username) => `
-SELECT * FROM airline_staff WHERE username = '${username}'
+SELECT *
+FROM airline_staff
+WHERE username = '${username}'
 `,
 
 findAirlineByName: (name) => `
-SELECT * FROM airline WHERE airline_name = '${name}'
+SELECT *
+FROM airline
+WHERE airline_name = '${name}'
 `,
 
 saveCustomer: (body) => `
@@ -116,15 +126,16 @@ WHERE flight.airline_name = ticket.airline_name AND
     purchases.purchase_date BETWEEN CURDATE() - INTERVAL 1 YEAR AND CURDATE()
 `,
 
-trackMonthlySpending: (email) => `
-SELECT MONTH(purchases.purchase_date) as month, SUM(flight.price) as price
+trackMonthlySpending: (email, from, to) => `
+SELECT YEAR(purchases.purchase_date) as year, MONTH(purchases.purchase_date) as month, SUM(flight.price) as price
 FROM flight, ticket, purchases
 WHERE flight.airline_name = ticket.airline_name AND 
     flight.flight_num = ticket.flight_num AND 
     ticket.ticket_id = purchases.ticket_id AND 
     purchases.customer_email = '${email}' AND
-    purchases.purchase_date > CURDATE() - INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY - INTERVAL 6 MONTH
-    group by MONTH(purchases.purchase_date)
+    purchases.purchase_date >= '${from}' AND
+    purchases.purchase_date <= '${to}'
+GROUP BY YEAR(purchases.purchase_date), MONTH(purchases.purchase_date)
 `,
 
 findAgentFlights: (id) =>  `
@@ -180,13 +191,10 @@ DESC LIMIT 5
 `,
 
 findStaffFlights: (airline) => `
-SELECT flight.airline_name, flight.flight_num, flight.departure_airport, flight.departure_time,
-    flight.arrival_airport, flight.arrival_time, flight.price, flight.status, flight.airplane_id
+SELECT *
 FROM flight
 WHERE flight.airline_name = '${airline}'
 `,
-
-
 }
 
 module.exports = {

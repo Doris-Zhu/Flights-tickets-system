@@ -8,7 +8,19 @@
     <input type="date" id="date" name="date">
     <input class="btn btn-outline-success" style="margin-top: 5px;" type="submit" value="Search">
 </form>
-
+{{#if staff}}
+    {{#if operator}}
+        <button class="btn btn-danger">Change Flight Status</button>
+    {{/if}}
+    {{#if admin}}
+        <div class="admin-buttons">
+            <a href="/createFlight" class="btn btn-primary" style="margin-left: 10%; margin-right: 10%;">Create New Flight</a>
+            <a href="/addAirplane" class="btn btn-primary" style="margin-right: 10%;">Add Airplane</a>
+            <a href="/addAirport" class="btn btn-primary" style="margin-right: 10%;"> Add Airport</a>
+            <a href="/viewStaff" class="btn btn-primary" style="margin-right: 10%;"> View Staff and Grant Submission</a>
+        </div>
+    {{/if}}
+{{/if}}
 {{#if flights}}
     <form action="/purchase" method="POST">
         <table class="table table-striped diytable">
@@ -53,8 +65,15 @@
                 </tr>
             {{/each}}
         </table>
-        <input type="submit" class="btn btn-success" value="Purchase this ticket!">
+        {{#if customer}}
+            <input type="submit" class="btn btn-success" value="Purchase this ticket!">
+        {{/if}}
+        {{#if agent}}
+            <input type="submit" class="btn btn-success" value="Purchase this ticket!">
+        {{/if}}
+       
     </form>
 {{else}}
     <p style="color:red;">No flight</p>
 {{/if}}
+

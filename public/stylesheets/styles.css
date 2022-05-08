@@ -65,3 +65,13 @@ h3, p {
     background-color:green;
     transform: scaleX(0.1);
 }
+
+.admin-buttons{
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+}
+
+.admin-btn{
+    margin-right: 10%;
+}

@@ -38,6 +38,8 @@
 {{#each topAgentsByTicketLastMonth as |a|}}
     <p>{{a.email}}</p>
 {{/each}}
+
+
 <p style="color:green">Top 5 Booking Agents Based on Number of Tickets sales for the Past Year</p>
 {{#each topAgentsByTicketPastYear as |a|}}
     <p>{{a.email}}</p>
@@ -48,7 +50,7 @@
 {{/each}}
 
 <h2>Most Frequent Consumers</h2>
-{{#each frequentConsumers as |c|}}
+{{#each frequentCustomers as |c|}}
     <p>{{c.customer}} has bought {{c.num}} tickets.</p>
 {{/each}}
 
@@ -61,3 +63,34 @@
 {{#each destinationsPastYear as |d|}}
     <p>{{d.city}}</p>
 {{/each}}
+<div class="month-chart">
+    <canvas id="pieChartLastYear"></canvas>
+    <canvas id="pieChartLastMonth"></canvas>
+</div>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js'></script>
+<script>
+    new Chart(document.getElementById("pieChartLastYear").getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ['Direct', 'Agent'],
+            datasets: [{
+                data: [{{lastYearInput}}],
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+    new Chart(document.getElementById("pieChartLastMonth").getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ['Direct', 'Agent'],
+            datasets: [{
+                data: [{{lastMonthInput}}],
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>

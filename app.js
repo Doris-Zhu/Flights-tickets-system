@@ -149,10 +149,10 @@ app.get('/myinfo', async (req, res) => {
         const topAgentsByTicketLastMonth = await sql(queries.topAgentsByTicketLastMonth(req.session.user.airline_name));
         const topAgentsByTicketPastYear = await sql(queries.topAgentsByTicketPastYear(req.session.user.airline_name));
         const topAgentsByCommissionPastYear = await sql(queries.topAgentsByCommissionPastYear(req.session.user.airline_name));
-        const frequentConsumers = await sql(queries.findFrequentConsumers(req.session.user.airline_name));
+        const frequentCustomers = await sql(queries.findfrequentCustomers(req.session.user.airline_name));
         const destinationsThreeMonths = await sql(queries.findTopDestinations('3'));
         const destinationsPastYear = await sql(queries.findTopDestinations('12'));
-        console.log(frequentConsumers);
+        console.log(frequentCustomers);
         if (req.query.from === undefined || req.query.from === '') {
             req.query.from = new Date().toISOString().slice(0, 10);
         }
@@ -167,8 +167,41 @@ app.get('/myinfo', async (req, res) => {
         }
 
         const flights = await sql(queries.findStaffFlights(req.session.user.airline_name, req.query.from, req.query.to));
-        res.render('view_staff', { myflights: flights, topAgentsByTicketLastMonth, topAgentsByTicketPastYear, 
-            topAgentsByCommissionPastYear, frequentConsumers, destinationsThreeMonths, destinationsPastYear})
+
+        const fromLastYear = addMonths(new Date(req.query.from), -12).toISOString().slice(0, 10);
+        const fromLastMonth = addMonths(new Date(req.query.from), -1).toISOString().slice(0, 10);
+        const lastYear = await sql(queries.totalRevenueEarned(req.session.user.airline_name, fromLastYear));
+        const lastMonth = await sql(queries.totalRevenueEarned(req.session.user.airline_name, fromLastMonth));
+        
+        const lastYearInput = [0, 0]
+        lastYear.forEach((item) => {
+            if (item.purchase_method === 'NULL') {
+                lastYearInput[0] = item.revenue;
+            }
+            else {
+                lastYearInput[1] = item.revenue
+            }
+        });
+        const lastMonthInput = [0, 0]
+        lastMonth.forEach((item) => {
+            if (item.purchase_method === 'NULL') {
+                lastMonthInput[0] = item.revenue;
+            }
+            else {
+                lastMonthInput[1] = item.revenue
+            }
+        });
+        res.render('view_staff', {
+            myflights: flights, 
+            topAgentsByTicketLastMonth, 
+            lastYearInput, 
+            lastMonthInput, 
+            topAgentsByTicketPastYear, 
+            topAgentsByCommissionPastYear, 
+            frequentCustomers, 
+            destinationsThreeMonths, 
+            destinationsPastYear 
+        });
     }
 });
 
@@ -177,15 +210,16 @@ app.post('/purchase', async (req, res) => {
     purchaseInfo.id = Math.floor(Math.random() * (2**31 - 1));
     if (req.session.role == 'customer') {
         purchaseInfo.email = req.session.user.email;
-        purchaseInfo.agent_id = null;
+        purchaseInfo.agent_id = 'NULL';
         purchaseInfo.date = new Date().toISOString().slice(0, 10);
+        console.log(queries.createPurchase(purchaseInfo));
         await sql(queries.createTicket(purchaseInfo));
         await sql(queries.createPurchase(purchaseInfo));
     }
     else if (req.session.role == 'agent') {
         purchaseInfo.email = req.body[req.body.purchase];
         console.log(purchaseInfo.email);
-        purchaseInfo.agent_id = req.session.user.booking_agent_id;
+        purchaseInfo.agent_id = `'${req.session.user.booking_agent_id}'`;
         purchaseInfo.date = new Date().toISOString().slice(0, 10);
         console.log(purchaseInfo);
         await sql(queries.createTicket(purchaseInfo));

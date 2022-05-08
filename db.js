@@ -230,7 +230,8 @@ SELECT booking_agent.email, count(purchases.ticket_id) as count
 FROM booking_agent, booking_agent_work_for, purchases
 WHERE booking_agent.email = booking_agent_work_for.email AND
     booking_agent.booking_agent_id = purchases.booking_agent_id AND
-    booking_agent_work_for.airline_name = '${airline}'
+    booking_agent_work_for.airline_name = '${airline}' AND
+    DATE(purchases.purchase_date) >= DATE(NOW()) - INTERVAL 30 DAY
 GROUP BY booking_agent.email
 ORDER BY count
 DESC LIMIT 5
@@ -244,6 +245,46 @@ WHERE ticket.ticket_id = purchases.ticket_id AND
     purchases.purchase_date > '${from}' AND
     flight.flight_num = ticket.flight_num
 GROUP BY purchase_method
+`,
+
+topAgentsByTicketPastYear: (airline) => `
+SELECT booking_agent.email, count(purchases.ticket_id) as count
+FROM booking_agent, booking_agent_work_for, purchases
+WHERE booking_agent.email = booking_agent_work_for.email AND
+    booking_agent.booking_agent_id = purchases.booking_agent_id AND
+    booking_agent_work_for.airline_name = '${airline}' AND
+    purchases.purchase_date > CURDATE() - INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY - INTERVAL 12 MONTH
+GROUP BY booking_agent.email
+ORDER BY count
+DESC LIMIT 5
+`,
+
+topAgentsByCommissionPastYear: (airline) => `
+SELECT booking_agent.email, sum(flight.price * 0.05) as total
+FROM booking_agent, booking_agent_work_for, purchases, flight, ticket
+WHERE booking_agent.email = booking_agent_work_for.email AND
+    booking_agent.booking_agent_id = purchases.booking_agent_id AND
+    flight.airline_name = ticket.airline_name AND 
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND
+    booking_agent_work_for.airline_name = '${airline}' AND
+    purchases.purchase_date > CURDATE() - INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY - INTERVAL 12 MONTH
+GROUP BY booking_agent.email
+ORDER BY total
+DESC LIMIT 5
+`,
+
+findFrequentConsumers:(airline) => `
+SELECT purchases.customer_email as customer, count(purchases.ticket_id) as num
+FROM purchases, flight, ticket
+WHERE flight.airline_name = ticket.airline_name AND 
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND
+    flight.airline_name = '${airline}' AND
+    purchases.purchase_date > CURDATE() - INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY - INTERVAL 12 MONTH
+GROUP BY customer
+ORDER BY num
+DESC LIMIT 3
 `,
 }
 

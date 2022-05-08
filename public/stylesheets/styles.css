@@ -56,3 +56,12 @@ h3, p {
     justify-content: center;
     align-items: center;
 }
+
+.month-chart{
+    position: absolute;
+    left:10%;
+}
+.bar{
+    background-color:green;
+    transform: scaleX(0.1);
+}

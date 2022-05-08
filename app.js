@@ -5,6 +5,7 @@ const path = require('path');
 const session = require('express-session');
 
 const { sql, queries } = require('./db.js');
+const { parse } = require('path');
 
 const app = express();
 
@@ -55,8 +56,11 @@ app.get('/myinfo', async (req, res) => {
 	const role = req.session.role;
     if (role == 'customer') {
         const flights = await sql(queries.findMyFlights(req.session.user.email));
-        console.log(flights);
-        res.render('view_customer', { myflights: flights });
+        const totalSpending = await sql(queries.trackTotalSpending(req.session.user.email));
+        let monthlySpending = await sql(queries.trackMonthlySpending(req.session.user.email));
+        monthlySpending = monthlySpending.map(m => ({ month: m.month, p: parseInt(m.p), curr:m.curr }));
+        console.log(monthlySpending);
+        res.render('view_customer', { myflights: flights, spending: totalSpending[0].p, monthly: monthlySpending});
     }
 });
 

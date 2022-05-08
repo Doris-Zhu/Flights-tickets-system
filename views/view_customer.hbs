@@ -25,3 +25,15 @@
         {{/each}}
     </table>
 {{/if}}
+<h2>My total spending last year: ${{spending}}</h2>
+<h2>Monthly Spending:</h2>
+
+<div class="month-chart">
+<canvas id="barChart"></canvas>
+</div>
+<script>
+    console.log('hi');
+    console.log('h',{{monthly}});
+<script/>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js'></script>
+

@@ -47,7 +47,6 @@ const handleGetHome = async function(req, res) {
     else if(req.session.role === 'agent'){
         let airlines = await sql(queries.findAgentAirlines(req.session.user.email));
         airlines = airlines.map(a => a.airline_name);
-        console.log(airlines);
         const agentFlights = flights.map(f => ({ ...f, myAirline: airlines.includes(f.airline_name)}))
         res.render('home_agent', {user:req.session.username, flights: agentFlights})
     }
@@ -64,7 +63,6 @@ app.get('/myinfo', async (req, res) => {
 	const role = req.session.role;
     if (role == 'customer') {
         const flights = await sql(queries.findMyFlights(req.session.user.email));
-
         const totalSpending = await sql(queries.trackTotalSpending(req.session.user.email));
 
         const INTERVAL = 6;
@@ -76,7 +74,6 @@ app.get('/myinfo', async (req, res) => {
             monthLabels.push(`${MONTHS[(i + 12) % 12]}`);
             monthSpendings.push(0);
         }
-
         const monthlySpending = await sql(queries.trackMonthlySpending(req.session.user.email));
         monthlySpending.forEach((spending) => {
             monthSpendings[INTERVAL - 1 - (currentMonth + 13 - spending.month) % 12] = spending.price;
@@ -91,18 +88,30 @@ app.get('/myinfo', async (req, res) => {
     }
     else if (role == 'agent') {
         const flights = await sql(queries.findAgentFlights(req.session.user.booking_agent_id));
-        console.log(flights);
-        res.render('view_agent', { myflights: flights});
+        const commission = await sql(queries.findAgentCommission(req.session.user.booking_agent_id));
+        res.render('view_agent', { myflights: flights, commission: commission[0]});
     }
 });
 
 app.post('/purchase', async (req, res) => {
     const purchaseInfo = JSON.parse(req.body.purchase);
     purchaseInfo.id = Math.floor(Math.random() * (2**31 - 1));
-    purchaseInfo.email = req.session.user.email;
-    purchaseInfo.date = new Date().toISOString().slice(0, 10);
-    await sql(queries.createTicket(purchaseInfo));
-    await sql(queries.createPurchase(purchaseInfo));
+    if (req.session.role == 'customer') {
+        purchaseInfo.email = req.session.user.email;
+        purchaseInfo.agent_id = null;
+        purchaseInfo.date = new Date().toISOString().slice(0, 10);
+        await sql(queries.createTicket(purchaseInfo));
+        await sql(queries.createPurchase(purchaseInfo));
+    }
+    else if (req.session.role == 'agent') {
+        purchaseInfo.email = req.body[req.body.purchase];
+        console.log(purchaseInfo.email);
+        purchaseInfo.agent_id = req.session.user.booking_agent_id;
+        purchaseInfo.date = new Date().toISOString().slice(0, 10);
+        console.log(purchaseInfo);
+        await sql(queries.createTicket(purchaseInfo));
+        await sql(queries.createPurchase(purchaseInfo));
+    }
     res.redirect('/myinfo');
 });
 //END OF INFO

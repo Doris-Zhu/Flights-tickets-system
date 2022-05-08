@@ -103,7 +103,7 @@ VALUES ('${obj.id}', '${obj.airline}', '${obj.num}')
 
 createPurchase: (obj) => `
 INSERT INTO purchases
-VALUES ('${obj.id}', '${obj.email}', NULL, '${obj.date}')
+VALUES ('${obj.id}', '${obj.email}', '${obj.agent_id}', '${obj.date}')
 `,
 
 trackTotalSpending: (email) => `
@@ -142,6 +142,16 @@ SELECT airline_name
 FROM booking_agent_work_for
 WHERE email = '${email}'
 `,
+
+findAgentCommission: (id) => `
+SELECT sum(flight.price * 0.05) as total, count(flight.price) as num, sum(flight.price * 0.05)/count(flight.price) as average
+FROM flight, ticket, purchases
+WHERE flight.airline_name = ticket.airline_name AND 
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND 
+    purchases.booking_agent_id = '${id}' AND
+    DATE(purchases.purchase_date) >= DATE(NOW()) - INTERVAL 30 DAY
+`
 }
 
 module.exports = {

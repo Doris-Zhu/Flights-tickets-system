@@ -10,23 +10,33 @@ async function sql(query) {
 
 queries = {
 findCustomerByName: (name) => `
-SELECT * FROM customer WHERE name = '${name}'
+SELECT *
+FROM customer
+WHERE name = '${name}'
 `,
 
 findCustomerByEmail: (email) => `
-SELECT * FROM customer WHERE email = '${email}'
+SELECT *
+FROM customer
+WHERE email = '${email}'
 `,
 
 findAgentByEmail: (email) => `
-SELECT * FROM booking_agent WHERE email = '${email}'
+SELECT *
+FROM booking_agent
+WHERE email = '${email}'
 `,
 
 findStaffByUsername: (username) => `
-SELECT * FROM airline_staff WHERE username = '${username}'
+SELECT *
+FROM airline_staff
+WHERE username = '${username}'
 `,
 
 findAirlineByName: (name) => `
-SELECT * FROM airline WHERE airline_name = '${name}'
+SELECT *
+FROM airline
+WHERE airline_name = '${name}'
 `,
 
 saveCustomer: (body) => `
@@ -181,13 +191,10 @@ DESC LIMIT 5
 `,
 
 findStaffFlights: (airline) => `
-SELECT flight.airline_name, flight.flight_num, flight.departure_airport, flight.departure_time,
-    flight.arrival_airport, flight.arrival_time, flight.price, flight.status, flight.airplane_id
+SELECT *
 FROM flight
 WHERE flight.airline_name = '${airline}'
 `,
-
-
 }
 
 module.exports = {

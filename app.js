@@ -32,14 +32,14 @@ app.get('/logout', (req, res) => {
 });
 
 // HELPERS
-const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate()
+const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
 
 const addMonths = (input, months) => {
   const date = new Date(input)
-  date.setDate(1)
-  date.setMonth(date.getMonth() + months)
-  date.setDate(Math.min(input.getDate(), getDaysInMonth(date.getFullYear(), date.getMonth()+1)))
-  return date
+  date.setDate(1);
+  date.setMonth(date.getMonth() + months);
+  date.setDate(Math.min(input.getDate(), getDaysInMonth(date.getFullYear(), date.getMonth()+1)));
+  return date;
 }
 // END OF HELPERS
 
@@ -55,14 +55,14 @@ const handleGetHome = async function(req, res) {
         const operator = permission === 'Operator';
         res.render('home', { user: req.session.username, flights, admin, operator, staff:true });
     }
-    else if(req.session.role === 'agent'){
+    else if (req.session.role === 'agent') {
         let airlines = await sql(queries.findAgentAirlines(req.session.user.email));
         airlines = airlines.map(a => a.airline_name);
-        const agentFlights = flights.map(f => ({ ...f, myAirline: airlines.includes(f.airline_name)}))
-        res.render('home', {user:req.session.username, flights: agentFlights, agent: true})
+        const agentFlights = flights.map(f => ({ ...f, myAirline: airlines.includes(f.airline_name)}));
+        res.render('home', { user:req.session.username, flights: agentFlights, agent: true });
     }
-    else if(req.session.role === 'customer'){
-        res.render('home', { user: req.session.username, flights, customer: true});
+    else if (req.session.role === 'customer') {
+        res.render('home', { user: req.session.username, flights, customer: true });
     }
 };
 
@@ -123,8 +123,14 @@ app.get('/myinfo', async (req, res) => {
         const numOfTickets = topCustomersByNum.map(customer => customer.num);
         const customerEmails2 = topCustomersByCom.map(customer => customer.customer);
         const customerCommission = topCustomersByCom.map(customer => customer.total);
-        res.render('view_agent', { myflights: flights, commission: commission[0], customerEmails1, numOfTickets, 
-            customerEmails2, customerCommission});
+        res.render('view_agent', {
+            myflights: flights, 
+            commission: commission[0], 
+            customerEmails1, 
+            numOfTickets, 
+            customerEmails2, 
+            customerCommission
+        });
     }
     else if (role == 'staff') {
         const flights = await sql(queries.findStaffFlights(req.session.user.airline_name));

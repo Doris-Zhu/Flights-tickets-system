@@ -146,7 +146,20 @@ app.get('/myinfo', async (req, res) => {
         });
     }
     else if (role == 'staff') {
-        const flights = await sql(queries.findStaffFlights(req.session.user.airline_name));
+        if (req.query.from === undefined || req.query.from === '') {
+            req.query.from = new Date().toISOString().slice(0, 10);
+        }
+        let fromDate = new Date(req.query.from);
+        if (req.query.to === undefined || req.query.to === '') {
+            req.query.to = addMonths(new Date(req.query.from), 1).toISOString().slice(0, 10);
+        }
+        let toDate = new Date(req.query.to);
+        if (fromDate > toDate) {
+            fromDate = toDate;
+            req.query.from = fromDate.toISOString().slice(0, 10);
+        }
+
+        const flights = await sql(queries.findStaffFlights(req.session.user.airline_name, req.query.from, req.query.to));
         res.render('view_staff', { myflights: flights })
     }
 });

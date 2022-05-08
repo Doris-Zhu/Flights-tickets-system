@@ -191,10 +191,12 @@ ORDER BY total
 DESC LIMIT 5
 `,
 
-findStaffFlights: (airline) => `
+findStaffFlights: (airline, from, to) => `
 SELECT *
 FROM flight
-WHERE flight.airline_name = '${airline}'
+WHERE flight.airline_name = '${airline}' AND
+    DATE(flight.departure_time) >= '${from}' AND
+    DATE(flight.arrival_time) <= '${to}'
 `,
 
 addAirport: (body) => `

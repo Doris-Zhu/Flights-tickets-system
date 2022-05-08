@@ -53,7 +53,7 @@ const handleGetHome = async function(req, res) {
         const permission = await getPermission(req.session.username);
         const admin = permission === 'Admin';
         const operator = permission === 'Operator';
-        res.render('home', { user: req.session.username, flights, admin, operator, staff:true });
+        res.render('home', { user: req.session.username, flights, admin, operator, staff: true });
     }
     else if (req.session.role === 'agent') {
         let airlines = await sql(queries.findAgentAirlines(req.session.user.email));

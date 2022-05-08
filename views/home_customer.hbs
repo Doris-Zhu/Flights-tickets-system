@@ -10,9 +10,13 @@
 <div class="flights">
     <h3 class="fw-bold text-success text-center" style="margin-top: 30px;"> Flights </h3>
     <form action="/" method="GET" style="margin-bottom: 2%;">
-        <label>Search: </label>
-        <input name="search" type="text">
-        <input class="btn btn-outline-success" style="margin-top: 5px;" type="submit" value="submit">
+        <label>Departure: </label>
+        <input name="departure" type="text">
+        <label>Destination: </label>
+        <input name="destination" type="text">
+        <label>Date:</label>
+        <input type="date" id="date" name="customer-search">
+        <input class="btn btn-outline-success" style="margin-top: 5px;" type="submit" value="Search">
     </form>
     {{#if flights}}
         <form action="/purchase" method="POST">
@@ -46,3 +50,4 @@
         <p style="color:red;">No flight</p>
     {{/if}}
 </div>
+

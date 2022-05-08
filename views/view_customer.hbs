@@ -27,7 +27,11 @@
 {{/if}}
 <h2>My total spending last year: ${{spending}}</h2>
 <h2>Monthly Spending:</h2>
-
+<form action="/myinfo" method="POST" style="display: flex;flex-flow: row;justify-content: center;align-items: center;">
+    From<input type="date" name="from" style="margin:10px;">
+    To<input type="date" name="to" style="margin:10px;">
+    <input type="submit" class="btn btn-success btn-sm" value="Submit" style="margin-left: 10px;">
+</form>
 <div class="month-chart">
 <canvas id="barChart"></canvas>
 </div>

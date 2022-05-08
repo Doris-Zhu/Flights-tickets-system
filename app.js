@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const express = require('express');
+const hbs = require('hbs');
 const moment = require('moment');
 const path = require('path');
 const session = require('express-session');
@@ -20,6 +21,7 @@ app.use(session({
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+hbs.registerPartials(__dirname + '/views/partials');
 
 app.get('/logout', (req, res) => {
 	req.user = undefined;
@@ -31,7 +33,7 @@ app.get('/logout', (req, res) => {
 
 // HOME
 const handleGetHome = async function(req, res) {
-    const flights = await sql(queries.findFlights(req.query.search));
+    const flights = await sql(queries.findFlights(req.query));
 
     if (req.session.role === undefined) {
         res.render('home', { flights });
@@ -79,7 +81,6 @@ app.get('/myinfo', async (req, res) => {
         monthlySpending.forEach((spending) => {
             monthSpendings[INTERVAL - 1 - (currentMonth + 13 - spending.month) % 12] = spending.price;
         });
-        console.log(monthlySpending);
 
         res.render('view_customer', {
             myflights: flights,

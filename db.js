@@ -46,23 +46,32 @@ VALUES ('${body.username}', '${body.password}', '${body.firstname}', '${body.las
     '${body.dob}', '${body.airline}')
 `,
 
-findFlights: (keyword) => {
-    if (keyword === undefined || keyword === '') {
-        return `
-SELECT * FROM flight
-        `;
+findFlights: (query) => {
+    let whereClause = '1';
+    if (query.departure !== undefined && query.departure !== '') {
+        whereClause += ` AND (
+        flight.departure_airport = '${query.departure}' OR 
+        dep.airport_city = '${query.departure}'
+    )`;
+    }
+    if (query.destination !== undefined && query.destination !== '') {
+        whereClause += ` AND (
+        flight.arrival_airport = '${query.destination}' OR 
+        des.airport_city = '${query.destination}'
+    )`;
+    }
+    if (query.date !== undefined && query.date !== '') {
+        whereClause += ` AND (
+        DATE(flight.departure_time) = '${query.date}' OR
+        DATE(flight.arrival_time) = '${query.date}'
+    )`;
     }
     return `
-SELECT flight.airline_name, flight.flight_num, flight.departure_airport, flight.departure_time,
-    flight.arrival_airport, flight.arrival_time, flight.price, flight.status, flight.airplane_id
-FROM flight, airport
-WHERE flight.departure_airport = airport.airport_name AND (
-    flight.departure_airport = '${keyword}' OR 
-    flight.arrival_airport = '${keyword}' OR 
-    airport.airport_city = '${keyword}' OR 
-    airport.airport_city = '${keyword}'
-)
-    `;
+SELECT DISTINCT flight.*
+FROM flight, airport as dep, airport as des
+WHERE (flight.departure_airport = dep.airport_name AND 
+    flight.arrival_airport = des.airport_name) AND ${whereClause}
+`;
 },
 
 addFlight: (body) => `

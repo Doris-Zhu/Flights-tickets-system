@@ -50,28 +50,29 @@ h3, p {
     margin-bottom: 3%;
 }
 
-.diytable{
+.diytable {
     display: flex;
     flex-flow: column;
     justify-content: center;
     align-items: center;
 }
 
-.month-chart{
+.month-chart {
     position: absolute;
     left:10%;
 }
-.bar{
+
+.bar {
     background-color:green;
     transform: scaleX(0.1);
 }
 
-.admin-buttons{
+.admin-buttons {
     padding: 20px;
     display: flex;
     flex-direction: row;
 }
 
-.admin-btn{
+.admin-btn {
     margin-right: 10%;
 }

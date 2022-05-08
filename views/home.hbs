@@ -8,5 +8,81 @@
     </div>
 {{/if}}
 <div class="flights">
-    {{> search_flights }}
+    <h3 class="fw-bold text-success text-center" style="margin-top: 30px;"> Flights </h3>
+    <form action="/" method="GET" style="display: flex;flex-flow: row;justify-content: center;align-items: center;">
+        <label>Departure: </label>
+        <input name="departure" type="text" style="margin:10px;">
+        <label>Destination: </label>
+        <input name="destination" type="text" style="margin:10px;">
+        <label>Date:</label>
+        <input type="date" id="date" name="date" style="margin:10px;">
+        <input class="btn btn-outline-success" style="margin-top: 5px;" type="submit" value="Search">
+    </form>
+    {{#if staff}}
+        {{#if operator}}
+            <button class="btn btn-danger">Change Flight Status</button>
+        {{/if}}
+        {{#if admin}}
+            <div class="admin-buttons">
+                <a href="/createFlight" class="btn btn-primary" style="margin-left: 10%; margin-right: 10%;">Create New Flight</a>
+                <a href="/addAirplane" class="btn btn-primary" style="margin-right: 10%;">Add Airplane</a>
+                <a href="/addAirport" class="btn btn-primary" style="margin-right: 10%;"> Add Airport</a>
+                <a href="/viewStaff" class="btn btn-primary" style="margin-right: 10%;"> View Staff and Grant Submission</a>
+            </div>
+        {{/if}}
+    {{/if}}
+    {{#if flights}}
+        <form action="/purchase" method="POST">
+            <table class="table table-striped diytable">
+                <tr>
+                    <th scope="col">Airline</th>
+                    <th scope="col">Flight Number</th>
+                    <th scope="col">Departure Airport</th>
+                    <th scope="col">Destination Airport</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Status</th>
+                    {{#if customer}}
+                        <th scope="col">Purchase</th>
+                    {{/if}}
+                    {{#if agent}}
+                        <th scope="col">Purchase</th>
+                        <th scope="col">For</th>
+                    {{/if}}
+                </tr>
+                {{#each flights as |f|}}
+                    <tr>
+                        <td scope="row">{{f.airline_name}}</td>
+                        <td>{{f.flight_num}}</td>
+                        <td>{{f.departure_airport}}</td>
+                        <td>{{f.arrival_airport}}</td>
+                        <td>{{f.departure_time}}</td>
+                        <td>{{f.status}}</td>
+                        {{#if ../customer}}
+                            <td>
+                                <input type="radio" name="purchase" value='{"num": "{{f.flight_num}}", "airline": "{{f.airline_name}}"}' />
+                            </td>
+                        {{/if}}
+                        {{#if ../agent}}
+                            {{#if f.myAirline}}
+                                <td>
+                                    <input type="radio" name="purchase" value='{"num": "{{f.flight_num}}", "airline": "{{f.airline_name}}"}' />
+                                </td>
+                                <td>
+                                    <input type="text" name='{"num": "{{f.flight_num}}", "airline": "{{f.airline_name}}"}' />
+                                </td>
+                            {{/if}}
+                        {{/if}}
+                    </tr>
+                {{/each}}
+            </table>
+            {{#if customer}}
+                <input type="submit" class="btn btn-success" value="Purchase this ticket!">
+            {{/if}}
+            {{#if agent}}
+                <input type="submit" class="btn btn-success" value="Purchase this ticket!">
+            {{/if}}
+        </form>
+    {{else}}
+        <p style="color:red;">No flight</p>
+    {{/if}}
 </div>

@@ -115,8 +115,21 @@ app.get('/myinfo', async (req, res) => {
         });
     }
     else if (role == 'agent') {
+        if (req.query.to === undefined || req.query.to === '') {
+            req.query.to = new Date().toISOString().slice(0, 10);
+        }
+        let toDate = new Date(req.query.to);
+        if (req.query.from === undefined || req.query.from === '') {
+            req.query.from = addMonths(new Date(req.query.to), -5).toISOString().slice(0, 10);
+        }
+        let fromDate = new Date(req.query.from);
+        if (fromDate > toDate) {
+            fromDate = toDate;
+            req.query.from = fromDate.toISOString().slice(0, 10);
+        }
+
         const flights = await sql(queries.findAgentFlights(req.session.user.booking_agent_id));
-        const commission = await sql(queries.findAgentCommission(req.session.user.booking_agent_id));
+        const commission = await sql(queries.findAgentCommission(req.session.user.booking_agent_id, req.query.from, req.query.to));
         const topCustomersByNum = await sql(queries.findTopCustomersByNum(req.session.user.booking_agent_id));
         const topCustomersByCom = await sql(queries.findTopCustomersByCommission(req.session.user.booking_agent_id));
         const customerEmails1 = topCustomersByNum.map(customer => customer.customer);
@@ -159,7 +172,7 @@ app.post('/purchase', async (req, res) => {
     }
     res.redirect('/myinfo');
 });
-//END OF INFO
+// END OF INFO
 
 // LOGIN
 const handleLogin = async (req, res, results, role) => {
@@ -521,7 +534,7 @@ app.get('/addBookingAgent', (req, res) => {
     res.render('add_agent');
 });
 
-app.get('/grantStaffPermission', (req, res) => {
+app.get('/grantStaffPermission', async (req, res) => {
     const staffs = await sql(queries.findAllStaffs(req.session.username));
     res.render('grant_permission', staffs);
 })

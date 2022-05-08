@@ -113,7 +113,7 @@ VALUES ('${obj.id}', '${obj.airline}', '${obj.num}')
 
 createPurchase: (obj) => `
 INSERT INTO purchases
-VALUES ('${obj.id}', '${obj.email}', '${obj.agent_id}', '${obj.date}')
+VALUES ('${obj.id}', '${obj.email}', ${obj.agent_id}, '${obj.date}')
 `,
 
 trackTotalSpending: (email) => `
@@ -234,6 +234,16 @@ WHERE booking_agent.email = booking_agent_work_for.email AND
 GROUP BY booking_agent.email
 ORDER BY count
 DESC LIMIT 5
+`,
+
+totalRevenueEarned: (airline, from) => `
+SELECT IF(ISNULL(purchases.booking_agent_id), 'NULL', 'NOT NULL') as purchase_method, SUM(flight.price) AS revenue
+FROM ticket, purchases, flight
+WHERE ticket.ticket_id = purchases.ticket_id AND
+    ticket.airline_name = '${airline}' AND
+    purchases.purchase_date > '${from}' AND
+    flight.flight_num = ticket.flight_num
+GROUP BY purchase_method
 `,
 }
 

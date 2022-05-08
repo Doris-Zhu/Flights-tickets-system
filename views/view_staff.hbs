@@ -37,3 +37,35 @@
 {{#each topAgentsByTicketLastMonth as |a|}}
     <p>{{a.email}}</p>
 {{/each}}
+
+<div class="month-chart">
+    <canvas id="pieChartLastYear"></canvas>
+    <canvas id="pieChartLastMonth"></canvas>
+</div>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js'></script>
+<script>
+    new Chart(document.getElementById("pieChartLastYear").getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ['Direct', 'Agent'],
+            datasets: [{
+                data: [{{lastYearInput}}],
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+    new Chart(document.getElementById("pieChartLastMonth").getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ['Direct', 'Agent'],
+            datasets: [{
+                data: [{{lastMonthInput}}],
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>

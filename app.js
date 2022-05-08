@@ -46,7 +46,6 @@ const addMonths = (input, months) => {
 // HOME
 const handleGetHome = async function(req, res) {
     const flights = await sql(queries.findFlights(req.query));
-
     if (req.session.role === undefined) {
         res.render('home', { flights });
     }
@@ -54,16 +53,16 @@ const handleGetHome = async function(req, res) {
         const permission = await getPermission(req.session.username);
         const admin = permission === 'Admin';
         const operator = permission === 'Operator';
-        res.render(`home_staff`, { user: req.session.username, flights, admin, operator });
+        res.render('home', { user: req.session.username, flights, admin, operator, staff:true });
     }
     else if(req.session.role === 'agent'){
         let airlines = await sql(queries.findAgentAirlines(req.session.user.email));
         airlines = airlines.map(a => a.airline_name);
         const agentFlights = flights.map(f => ({ ...f, myAirline: airlines.includes(f.airline_name)}))
-        res.render('home_agent', {user:req.session.username, flights: agentFlights})
+        res.render('home', {user:req.session.username, flights: agentFlights, agent: true})
     }
-    else {
-        res.render(`home_${req.session.role}`, { user: req.session.username, flights });
+    else if(req.session.role === 'customer'){
+        res.render('home', { user: req.session.username, flights, customer: true});
     }
 };
 
@@ -126,6 +125,10 @@ app.get('/myinfo', async (req, res) => {
         const customerCommission = topCustomersByCom.map(customer => customer.total);
         res.render('view_agent', { myflights: flights, commission: commission[0], customerEmails1, numOfTickets, 
             customerEmails2, customerCommission});
+    }
+    else if (role == 'staff') {
+        const flights = await sql(queries.findStaffFlights(req.session.user.airline_name));
+        res.render('view_staff', { myflights: flights })
     }
 });
 
@@ -354,7 +357,7 @@ const handleStaffRegister = async function(req, res) {
         return;
     }
 
-    const results = await sql(queries.findStaffByUsername(body.username));
+    let results = await sql(queries.findStaffByUsername(body.username));
     if (results.length > 0) {
         res.render('staff_register', { message: 'This username is already registered.' });
         return;

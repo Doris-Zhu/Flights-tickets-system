@@ -8,6 +8,7 @@
     <input type="date" id="date" name="date">
     <input class="btn btn-outline-success" style="margin-top: 5px;" type="submit" value="Search">
 </form>
+
 {{#if flights}}
     <form action="/purchase" method="POST">
         <table class="table table-striped diytable">
@@ -18,7 +19,13 @@
                 <th scope="col">Destination Airport</th>
                 <th scope="col">Date</th>
                 <th scope="col">Status</th>
+                {{#if customer}}
                 <th scope="col">Purchase</th>
+                {{/if}}
+                {{#if agent}}
+                <th scope="col">Purchase</th>
+                <th scope="col">For</th>
+                {{/if}}
             </tr>
             {{#each flights as |f|}}
                 <tr>
@@ -28,9 +35,21 @@
                     <td>{{f.arrival_airport}}</td>
                     <td>{{f.departure_time}}</td>
                     <td>{{f.status}}</td>
-                    <td>
-                        <input type="radio" name="purchase" value='{"num": "{{f.flight_num}}", "airline": "{{f.airline_name}}"}' />
-                    </td>
+                    {{#if ../customer}}
+                        <td>
+                            <input type="radio" name="purchase" value='{"num": "{{f.flight_num}}", "airline": "{{f.airline_name}}"}' />
+                        </td>
+                    {{/if}}
+                    {{#if ../agent}}
+                        {{#if f.myAirline}}
+                            <td>
+                                <input type="radio" name="purchase" value='{"num": "{{f.flight_num}}", "airline": "{{f.airline_name}}"}' />
+                            </td>
+                            <td>
+                                <input type="text" name='{"num": "{{f.flight_num}}", "airline": "{{f.airline_name}}"}' />
+                            </td>
+                        {{/if}}
+                    {{/if}}
                 </tr>
             {{/each}}
         </table>

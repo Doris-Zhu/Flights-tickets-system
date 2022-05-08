@@ -1,0 +1,19 @@
+<div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+    <div class="card border-0 shadow rounded-3 my-5">
+        <div class="card-body p-4 p-sm-5" style="background-color: lightcyan;">
+            <h5 class="card-title text-center mb-5 fw-light fs-5">
+                Add an Airplane
+            </h5>
+            <p style="color:red;">
+                {{message}}
+            </p>
+            <form method="POST" action="/addBookingAgent">
+                <div class='form-row'>
+                    <label>Email Address of the Booking Agent:&nbsp;</label>
+                    <input name="email" type="text" style="margin-left: 3px;">
+                </div>
+                <input type="submit" class="submit btn btn-success" value="Add">
+            </form>
+        </div>
+    </div>
+</div>

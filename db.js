@@ -205,6 +205,17 @@ addAirplane: (body) =>`
 INSERT INTO airplane
 VALUES ('${body.name}', '${body.id}', '${body.seat}')
 `,
+
+addAgent: (email, airline) =>`
+INSERT INTO booking_agent_work_for
+VALUES ('${email}', '${airline}')
+`,
+
+findAllStaffs: (username) => `
+SELECT *
+FROM airline_staff
+WHERE username <> '${username}'
+`
 }
 
 module.exports = {

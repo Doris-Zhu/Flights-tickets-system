@@ -469,7 +469,7 @@ const handleAddAirport = async function(req, res){
     console.log('Adding airport');
     await sql(queries.addAirport(body));
     res.redirect('/');
-}
+};
 
 const handleAddAirplane = async function(req, res){
     const body = req.body;
@@ -490,7 +490,19 @@ const handleAddAirplane = async function(req, res){
     console.log('Adding airplane');
     await sql(queries.addAirplane(body));
     res.redirect('/');
-}
+};
+
+const handleAddAgent = async function(req, res){
+    const email = req.body.email;
+    const airline = req.session.user.airline_name;
+    if (email === '') {
+        res.render('add_agent', { message: 'The email of booking agent is required' });
+        return;
+    }
+    console.log('Adding booking agent');
+    await sql(queries.addAgent(email, airline));
+    res.redirect('/');
+};
 
 app.get('/createFlight', (req, res) => {
     res.render('create_flight');
@@ -504,11 +516,22 @@ app.get('/addAirplane', (req, res) => {
     res.render('add_airplane');
 });
 
+app.get('/addBookingAgent', (req, res) => {
+    res.render('add_agent');
+});
+
+app.get('/grantStaffPermission', (req, res) => {
+    const staffs = await sql(queries.findAllStaffs(req.session.username));
+    res.render('grant_permission', staffs);
+})
+
 app.post('/createFlight', handleCreateFlight);
 
 app.post('/addAirport', handleAddAirport);
 
 app.post('/addAirplane', handleAddAirplane);
+
+app.post('/addBookingAgent', handleAddAgent);
 //END OF STAFF OPERATION
 
 app.listen(PORT, () => console.log(`listening to port ${PORT}`));

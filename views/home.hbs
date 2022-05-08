@@ -20,10 +20,12 @@
     </form>
     {{#if staff}}
         {{#if operator}}
-            <button class="btn btn-danger">Change Flight Status</button>
+        <div class="d-flex justify-content-around">
+            <a href="/changeStatus" class="btn btn-danger">Change Flight Status</a>
+        </div>
         {{/if}}
         {{#if admin}}
-            <div class="admin-buttons">
+            <div class="d-flex justify-content-around admin-buttons">
                 <a href="/createFlight" class="btn btn-primary" style="margin-left: 8%; margin-right: 10%;">Create New Flight</a>
                 <a href="/addAirplane" class="btn btn-primary" style="margin-right: 8%;">Add Airplane</a>
                 <a href="/addAirport" class="btn btn-primary" style="margin-right: 8%;">Add Airport</a>

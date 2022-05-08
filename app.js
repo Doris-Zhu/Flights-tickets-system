@@ -589,6 +589,13 @@ const handleGrantPermission = async function(req, res) {
     }
 };
 
+const handleChangeStatus = async function(req, res) {
+    const flight_num = req.body.flight;
+    const status = req.body.status;
+    await sql(queries.updateStatus(req.session.user.airline_name, flight_num, status));
+    res.redirect('/');
+};
+
 app.get('/createFlight', (req, res) => {
     res.render('create_flight');
 });
@@ -610,6 +617,11 @@ app.get('/grantStaffPermission', async (req, res) => {
     res.render('grant_permission', {staffs});
 });
 
+app.get('/changeStatus', async (req, res) => {
+    const flights = await sql(queries.findAllStaffFlights(req.session.user.airline_name));
+    res.render('change_status', {flights});
+})
+
 app.post('/createFlight', handleCreateFlight);
 
 app.post('/addAirport', handleAddAirport);
@@ -619,6 +631,9 @@ app.post('/addAirplane', handleAddAirplane);
 app.post('/addBookingAgent', handleAddAgent);
 
 app.post('/grantStaffPermission', handleGrantPermission);
+
+app.post('/changeStatus', handleChangeStatus);
+
 //END OF STAFF OPERATION
 
 app.listen(PORT, () => console.log(`listening to port ${PORT}`));

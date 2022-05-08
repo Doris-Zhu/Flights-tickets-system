@@ -80,9 +80,11 @@ findFlights: (query) => {
 SELECT DISTINCT flight.*
 FROM flight, airport as dep, airport as des
 WHERE (flight.departure_airport = dep.airport_name AND 
-    flight.arrival_airport = des.airport_name) AND ${whereClause}
+    flight.arrival_airport = des.airport_name) AND 
+    flight.status = 'upcoming' AND ${whereClause}
 `;
 },
+
 
 createFlight: (body) => `
 INSERT INTO flight
@@ -103,6 +105,7 @@ FROM flight, ticket, purchases
 WHERE flight.airline_name = ticket.airline_name AND 
     flight.flight_num = ticket.flight_num AND 
     ticket.ticket_id = purchases.ticket_id AND 
+    flight.status = 'upcoming' AND
     purchases.customer_email = '${email}'
 `,
 
@@ -144,7 +147,8 @@ SELECT flight.airline_name, flight.flight_num, flight.departure_airport, flight.
 FROM flight, ticket, purchases
 WHERE flight.airline_name = ticket.airline_name AND 
     flight.flight_num = ticket.flight_num AND 
-    ticket.ticket_id = purchases.ticket_id AND 
+    ticket.ticket_id = purchases.ticket_id AND
+    flight.status = 'upcoming' AND 
     purchases.booking_agent_id = '${id}'
 `,
 
@@ -196,7 +200,14 @@ SELECT *
 FROM flight
 WHERE flight.airline_name = '${airline}' AND
     DATE(flight.departure_time) >= '${from}' AND
+    flight.status = 'upcoming' AND
     DATE(flight.arrival_time) <= '${to}'
+`,
+
+findAllStaffFlights:(airline)=> `
+SELECT *
+FROM flight
+WHERE flight.airline_name = '${airline}'
 `,
 
 addAirport: (body) => `
@@ -298,7 +309,14 @@ WHERE flight.airline_name = ticket.airline_name AND
 GROUP BY city
 ORDER BY num
 DESC LIMIT 3
-`
+`,
+
+updateStatus: (airline, num, s) =>`
+UPDATE flight
+SET status = '${s}'
+WHERE airline_name = '${airline}' AND
+flight_num = '${num}'
+`,
 }
 
 module.exports = {

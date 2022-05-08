@@ -1,0 +1,44 @@
+<h2>View Flights Operated by My Airline</h2>
+<form action="/myinfo" method="GET" style="display: flex;flex-flow: row;justify-content: center;align-items: center;">
+    <label>Departure: </label>
+    <input name="departure" type="text" style="margin:10px;">
+    <label>Destination: </label>
+    <input name="destination" type="text" style="margin:10px;">
+    <label>From</label>
+    <input type="date" name="from" style="margin:10px;">
+    <label>To</label>
+    <input type="date" name="to" style="margin:10px;">
+    <input class="btn btn-outline-success" style="margin-top: 5px;" type="submit" value="Search">
+</form>
+<form action="/changeStatus" method="POST">
+    {{#if flights}}
+     <table class="table table-striped diytable">
+        <tr>
+            <th scope="col">Airline</th>
+            <th scope="col">Flight Number</th>
+            <th scope="col">Departure Airport</th>
+            <th scope="col">Destination Airport</th>
+            <th scope="col">Date</th>
+            <th scope="col">Status</th>
+            <th scope="col">Choose one to change</th>
+        </tr>
+        {{#each flights as |f|}}
+            <tr>
+                <td scope="row">{{f.airline_name}}</td>
+                <td>{{f.flight_num}}</td>
+                <td>{{f.departure_airport}}</td>
+                <td>{{f.arrival_airport}}</td>
+                <td>{{f.departure_time}}</td>
+                <td>{{f.status}}</td>
+                <td><input type="radio" name="flight" value='{{f.flight_num}}' /></td>
+            </tr>
+        {{/each}}
+    </table>
+{{/if}}
+<select name="status" id="status">
+    <option value="upcoming">upcoming</option>
+    <option value="in progress">in progress</option>
+    <option value="delayed">delayed</option>
+</select>
+<input type="submit" class="btn btn-danger" value="Change this flight's status">
+</form>

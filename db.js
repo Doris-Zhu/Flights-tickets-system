@@ -117,6 +117,22 @@ WHERE flight.airline_name = ticket.airline_name AND
     purchases.purchase_date > CURDATE() - INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY - INTERVAL 6 MONTH
     group by MONTH(purchases.purchase_date)
 `,
+
+findAgentFlights: (id) =>  `
+SELECT flight.airline_name, flight.flight_num, flight.departure_airport, flight.departure_time,
+    flight.arrival_airport, flight.arrival_time, flight.price, flight.status, flight.airplane_id
+FROM flight, ticket, purchases
+WHERE flight.airline_name = ticket.airline_name AND 
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND 
+    purchases.booking_agent_id = '${id}'
+`,
+
+findAgentAirlines: (email) => `
+SELECT airline_name
+FROM booking_agent_work_for
+WHERE email = '${email}'
+`,
 }
 
 module.exports = {

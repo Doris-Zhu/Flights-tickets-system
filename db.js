@@ -177,7 +177,16 @@ WHERE flight.airline_name = ticket.airline_name AND
 GROUP BY customer
 ORDER BY total
 DESC LIMIT 5
-`
+`,
+
+findStaffFlights: (airline) => `
+SELECT flight.airline_name, flight.flight_num, flight.departure_airport, flight.departure_time,
+    flight.arrival_airport, flight.arrival_time, flight.price, flight.status, flight.airplane_id
+FROM flight
+WHERE flight.airline_name = '${airline}'
+`,
+
+
 }
 
 module.exports = {

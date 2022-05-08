@@ -1,4 +1,4 @@
-<h2>View My Flights</h2>
+<h2>View Purchased Flights</h2>
 {{#if myflights}}
      <table class="table table-striped diytable">
         <tr>
@@ -23,3 +23,12 @@
         {{/each}}
     </table>
 {{/if}}
+<h2>Commission Information</h2>
+<form action="/myinfo" method="POST" style="display: flex;flex-flow: row;justify-content: center;align-items: center;">
+    From<input type="date" name="from" style="margin:10px;">
+    To<input type="date" name="to" style="margin:10px;">
+    <input type="submit" class="btn btn-success btn-sm" value="Submit" style="margin-left: 10px;">
+</form>
+<p>Total amount of commission: {{commission.total}}</p>
+<p>Average commission: {{commission.average}}</p>
+<p>Number of tickets: {{commission.num}}</p>

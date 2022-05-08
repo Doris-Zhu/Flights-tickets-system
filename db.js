@@ -196,17 +196,17 @@ FROM flight
 WHERE flight.airline_name = '${airline}'
 `,
 
-addAirport: (body) =>`
+addAirport: (body) => `
 INSERT INTO airport
 VALUES ('${body.name}', '${body.city}')
 `,
 
-addAirplane: (body) =>`
+addAirplane: (body) => `
 INSERT INTO airplane
 VALUES ('${body.name}', '${body.id}', '${body.seat}')
 `,
 
-addAgent: (email, airline) =>`
+addAgent: (email, airline) => `
 INSERT INTO booking_agent_work_for
 VALUES ('${email}', '${airline}')
 `,

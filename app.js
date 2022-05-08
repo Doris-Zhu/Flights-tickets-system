@@ -419,8 +419,8 @@ async function getPermission(username) {
 }
 // END OF STAFF
 
-//STAFF OPERATION
-const handleCreateFlight = async function(req, res){
+// STAFF OPERATION
+const handleCreateFlight = async function(req, res) {
     const body = req.body;
     if (body.airline === '') {
         res.render('create_flight', { message: 'Airline Name is required' });
@@ -455,7 +455,8 @@ const handleCreateFlight = async function(req, res){
     await sql(queries.createFlight(body));
     res.redirect('/');
 };
-const handleAddAirport = async function(req, res){
+
+const handleAddAirport = async function(req, res) {
     const body = req.body;
     if (body.name === '') {
         res.render('add_airport', { message: 'Airport Name is required' });
@@ -471,7 +472,7 @@ const handleAddAirport = async function(req, res){
     res.redirect('/');
 };
 
-const handleAddAirplane = async function(req, res){
+const handleAddAirplane = async function(req, res) {
     const body = req.body;
     if (body.name === '') {
         res.render('add_airplane', { message: 'Airline Name is required' });
@@ -492,7 +493,7 @@ const handleAddAirplane = async function(req, res){
     res.redirect('/');
 };
 
-const handleAddAgent = async function(req, res){
+const handleAddAgent = async function(req, res) {
     const email = req.body.email;
     const airline = req.session.user.airline_name;
     if (email === '') {

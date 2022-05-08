@@ -116,15 +116,16 @@ WHERE flight.airline_name = ticket.airline_name AND
     purchases.purchase_date BETWEEN CURDATE() - INTERVAL 1 YEAR AND CURDATE()
 `,
 
-trackMonthlySpending: (email) => `
-SELECT MONTH(purchases.purchase_date) as month, SUM(flight.price) as price
+trackMonthlySpending: (email, from, to) => `
+SELECT YEAR(purchases.purchase_date) as year, MONTH(purchases.purchase_date) as month, SUM(flight.price) as price
 FROM flight, ticket, purchases
 WHERE flight.airline_name = ticket.airline_name AND 
     flight.flight_num = ticket.flight_num AND 
     ticket.ticket_id = purchases.ticket_id AND 
     purchases.customer_email = '${email}' AND
-    purchases.purchase_date > CURDATE() - INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY - INTERVAL 6 MONTH
-    group by MONTH(purchases.purchase_date)
+    purchases.purchase_date >= '${from}' AND
+    purchases.purchase_date <= '${to}'
+GROUP BY YEAR(purchases.purchase_date), MONTH(purchases.purchase_date)
 `,
 
 findAgentFlights: (id) =>  `

@@ -31,6 +31,18 @@ app.get('/logout', (req, res) => {
 	res.redirect('/');
 });
 
+// HELPERS
+const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate()
+
+const addMonths = (input, months) => {
+  const date = new Date(input)
+  date.setDate(1)
+  date.setMonth(date.getMonth() + months)
+  date.setDate(Math.min(input.getDate(), getDaysInMonth(date.getFullYear(), date.getMonth()+1)))
+  return date
+}
+// END OF HELPERS
+
 // HOME
 const handleGetHome = async function(req, res) {
     const flights = await sql(queries.findFlights(req.query));
@@ -65,18 +77,35 @@ app.get('/myinfo', async (req, res) => {
         const flights = await sql(queries.findMyFlights(req.session.user.email));
         const totalSpending = await sql(queries.trackTotalSpending(req.session.user.email));
 
-        const INTERVAL = 6;
-        const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const currentMonth = new Date().getMonth();
+        if (req.query.to === undefined || req.query.to === '') {
+            req.query.to = new Date().toISOString().slice(0, 10);
+        }
+        let toDate = new Date(req.query.to);
+        if (req.query.from === undefined || req.query.from === '') {
+            req.query.from = addMonths(new Date(req.query.to), -5).toISOString().slice(0, 10);
+        }
+        let fromDate = new Date(req.query.from);
+        if (fromDate > toDate) {
+            fromDate = toDate;
+            req.query.from = fromDate.toISOString().slice(0, 10);
+        }
+
         const monthLabels = [];
         const monthSpendings = [];
-        for (let i = currentMonth - INTERVAL + 1; i <= currentMonth; i++) {
-            monthLabels.push(`${MONTHS[(i + 12) % 12]}`);
+        let loopDate = new Date(req.query.from);
+        while (loopDate <= toDate) {
+            monthLabels.push(loopDate.toISOString().slice(0, 7));
             monthSpendings.push(0);
+            loopDate = addMonths(loopDate, 1);
         }
-        const monthlySpending = await sql(queries.trackMonthlySpending(req.session.user.email));
+        const monthlySpending = await sql(queries.trackMonthlySpending(req.session.user.email, req.query.from, req.query.to));
         monthlySpending.forEach((spending) => {
-            monthSpendings[INTERVAL - 1 - (currentMonth + 13 - spending.month) % 12] = spending.price;
+            const yearMonth = `${spending.year}-` + `${spending.month}`.padStart(2, '0');
+            for (let i = 0; i < monthLabels.length; i++) {
+                if (monthLabels[i] === yearMonth) {
+                    monthSpendings[i] = spending.price;
+                }
+            }
         });
 
         res.render('view_customer', {

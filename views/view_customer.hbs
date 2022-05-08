@@ -18,22 +18,19 @@
                 <td>{{f.arrival_airport}}</td>
                 <td>{{f.departure_time}}</td>
                 <td>{{f.status}}</td>
-                <td>
-                    <input type="radio" name="purchase" value={{f.flight_num}} />
-                </td>
             </tr>
         {{/each}}
     </table>
 {{/if}}
 <h2>My total spending last year: ${{spending}}</h2>
 <h2>Monthly Spending:</h2>
-<form action="/myinfo" method="POST" style="display: flex;flex-flow: row;justify-content: center;align-items: center;">
+<form action="/myinfo" method="GET" style="display: flex;flex-flow: row;justify-content: center;align-items: center;">
     From<input type="date" name="from" style="margin:10px;">
     To<input type="date" name="to" style="margin:10px;">
     <input type="submit" class="btn btn-success btn-sm" value="Submit" style="margin-left: 10px;">
 </form>
 <div class="month-chart">
-<canvas id="barChart"></canvas>
+    <canvas id="barChart"></canvas>
 </div>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js'></script>
 <script>

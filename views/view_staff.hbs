@@ -1,4 +1,15 @@
 <h2>View Flights Operated by My Airline</h2>
+<form action="/myinfo" method="GET" style="display: flex;flex-flow: row;justify-content: center;align-items: center;">
+    <label>Departure: </label>
+    <input name="departure" type="text" style="margin:10px;">
+    <label>Destination: </label>
+    <input name="destination" type="text" style="margin:10px;">
+    <label>From</label>
+    <input type="date" name="from" style="margin:10px;">
+    <label>To</label>
+    <input type="date" name="to" style="margin:10px;">
+    <input class="btn btn-outline-success" style="margin-top: 5px;" type="submit" value="Search">
+</form>
 {{#if myflights}}
      <table class="table table-striped diytable">
         <tr>

@@ -154,14 +154,15 @@ FROM booking_agent_work_for
 WHERE email = '${email}'
 `,
 
-findAgentCommission: (id) => `
+findAgentCommission: (id, from, to) => `
 SELECT sum(flight.price * 0.05) as total, count(flight.price) as num, sum(flight.price * 0.05)/count(flight.price) as average
 FROM flight, ticket, purchases
 WHERE flight.airline_name = ticket.airline_name AND 
     flight.flight_num = ticket.flight_num AND 
     ticket.ticket_id = purchases.ticket_id AND 
     purchases.booking_agent_id = '${id}' AND
-    DATE(purchases.purchase_date) >= DATE(NOW()) - INTERVAL 30 DAY
+    DATE(purchases.purchase_date) >= '${from}' AND
+    DATE(purchases.purchase_date) <= '${to}'
 `,
 
 findTopCustomersByNum: (id) => `
@@ -190,10 +191,12 @@ ORDER BY total
 DESC LIMIT 5
 `,
 
-findStaffFlights: (airline) => `
+findStaffFlights: (airline, from, to) => `
 SELECT *
 FROM flight
-WHERE flight.airline_name = '${airline}'
+WHERE flight.airline_name = '${airline}' AND
+    DATE(flight.departure_time) >= '${from}' AND
+    DATE(flight.arrival_time) <= '${to}'
 `,
 
 addAirport: (body) => `

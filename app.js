@@ -115,8 +115,21 @@ app.get('/myinfo', async (req, res) => {
         });
     }
     else if (role == 'agent') {
+        if (req.query.to === undefined || req.query.to === '') {
+            req.query.to = new Date().toISOString().slice(0, 10);
+        }
+        let toDate = new Date(req.query.to);
+        if (req.query.from === undefined || req.query.from === '') {
+            req.query.from = addMonths(new Date(req.query.to), -5).toISOString().slice(0, 10);
+        }
+        let fromDate = new Date(req.query.from);
+        if (fromDate > toDate) {
+            fromDate = toDate;
+            req.query.from = fromDate.toISOString().slice(0, 10);
+        }
+
         const flights = await sql(queries.findAgentFlights(req.session.user.booking_agent_id));
-        const commission = await sql(queries.findAgentCommission(req.session.user.booking_agent_id));
+        const commission = await sql(queries.findAgentCommission(req.session.user.booking_agent_id, req.query.from, req.query.to));
         const topCustomersByNum = await sql(queries.findTopCustomersByNum(req.session.user.booking_agent_id));
         const topCustomersByCom = await sql(queries.findTopCustomersByCommission(req.session.user.booking_agent_id));
         const customerEmails1 = topCustomersByNum.map(customer => customer.customer);
@@ -133,9 +146,22 @@ app.get('/myinfo', async (req, res) => {
         });
     }
     else if (role == 'staff') {
-        const flights = await sql(queries.findStaffFlights(req.session.user.airline_name));
         const topAgentsByTicketLastMonth = await sql(queries.topAgentsByTicketLastMonth(req.session.user.airline_name));
-        res.render('view_staff', { myflights: flights, topAgentsByTicketLastMonth})
+        if (req.query.from === undefined || req.query.from === '') {
+            req.query.from = new Date().toISOString().slice(0, 10);
+        }
+        let fromDate = new Date(req.query.from);
+        if (req.query.to === undefined || req.query.to === '') {
+            req.query.to = addMonths(new Date(req.query.from), 1).toISOString().slice(0, 10);
+        }
+        let toDate = new Date(req.query.to);
+        if (fromDate > toDate) {
+            fromDate = toDate;
+            req.query.from = fromDate.toISOString().slice(0, 10);
+        }
+
+        const flights = await sql(queries.findStaffFlights(req.session.user.airline_name, req.query.from, req.query.to));
+        res.render('view_staff', { myflights: flights, topAgentsByTicketLastMonth })
     }
 });
 
@@ -160,7 +186,7 @@ app.post('/purchase', async (req, res) => {
     }
     res.redirect('/myinfo');
 });
-//END OF INFO
+// END OF INFO
 
 // LOGIN
 const handleLogin = async (req, res, results, role) => {

@@ -169,6 +169,17 @@ WHERE flight.airline_name = ticket.airline_name AND
     DATE(purchases.purchase_date) <= '${to}'
 `,
 
+findTicketsSold: (airline, from, to) => `
+SELECT count(purchases.ticket_id) as num
+FROM flight, ticket, purchases
+WHERE flight.airline_name = ticket.airline_name AND 
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND 
+    flight.airline_name = '${airline}' AND
+    DATE(purchases.purchase_date) >= '${from}' AND
+    DATE(purchases.purchase_date) <= '${to}'
+`,
+
 findTopCustomersByNum: (id) => `
 SELECT purchases.customer_email as customer, count(flight.price) as num
 FROM flight, ticket, purchases

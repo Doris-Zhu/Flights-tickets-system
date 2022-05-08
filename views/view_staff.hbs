@@ -63,6 +63,8 @@
 {{#each destinationsPastYear as |d|}}
     <p>{{d.city}}</p>
 {{/each}}
+<h2>Report</h2>
+<p style="color:green">Tickets sold last year: {{ticketLastYear.num}}</p>
 <div class="month-chart">
     <canvas id="pieChartLastYear"></canvas>
     <canvas id="pieChartLastMonth"></canvas>

@@ -147,6 +147,10 @@ app.get('/myinfo', async (req, res) => {
     }
     else if (role == 'staff') {
         const topAgentsByTicketLastMonth = await sql(queries.topAgentsByTicketLastMonth(req.session.user.airline_name));
+        const topAgentsByTicketPastYear = await sql(queries.topAgentsByTicketPastYear(req.session.user.airline_name));
+        const topAgentsByCommissionPastYear = await sql(queries.topAgentsByCommissionPastYear(req.session.user.airline_name));
+        const frequentConsumers = await sql(queries.findFrequentConsumers(req.session.user.airline_name));
+        console.log(frequentConsumers);
         if (req.query.from === undefined || req.query.from === '') {
             req.query.from = new Date().toISOString().slice(0, 10);
         }
@@ -161,7 +165,8 @@ app.get('/myinfo', async (req, res) => {
         }
 
         const flights = await sql(queries.findStaffFlights(req.session.user.airline_name, req.query.from, req.query.to));
-        res.render('view_staff', { myflights: flights, topAgentsByTicketLastMonth })
+        res.render('view_staff', { myflights: flights, topAgentsByTicketLastMonth, topAgentsByTicketPastYear, 
+            topAgentsByCommissionPastYear, frequentConsumers})
     }
 });
 

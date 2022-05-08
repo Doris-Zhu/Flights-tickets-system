@@ -34,6 +34,20 @@
 {{/if}}
 
 <h2>Booking Agent Info</h2>
+<p style="color:green">Top 5 Booking Agents Based on Number of Tickets sales Last Month</p>
 {{#each topAgentsByTicketLastMonth as |a|}}
     <p>{{a.email}}</p>
+{{/each}}
+<p style="color:green">Top 5 Booking Agents Based on Number of Tickets sales for the Past Year</p>
+{{#each topAgentsByTicketPastYear as |a|}}
+    <p>{{a.email}}</p>
+{{/each}}
+<p style="color:green">Top 5 Booking Agents Based on Commission Received for the Past Year</p>
+{{#each topAgentsByCommissionPastYear as |a|}}
+    <p>{{a.email}}</p>
+{{/each}}
+
+<h2>Most Frequent Consumers</h2>
+{{#each frequentConsumers as |c|}}
+    <p>{{c.customer}} has bought {{c.num}} tickets.</p>
 {{/each}}

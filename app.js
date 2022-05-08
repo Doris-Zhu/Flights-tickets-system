@@ -419,4 +419,96 @@ async function getPermission(username) {
 }
 // END OF STAFF
 
+//STAFF OPERATION
+const handleCreateFlight = async function(req, res){
+    const body = req.body;
+    if (body.airline === '') {
+        res.render('create_flight', { message: 'Airline Name is required' });
+        return;
+    }
+
+    if (body.flightNum === '') {
+        res.render('create_flight', { message: 'Password is required' });
+        return;
+    }
+
+    if (body.depAirport === '' || body.depTime === '' || body.ArrAirport === '' || body.ArrTime === '') {
+        res.render('create_flight', { message: 'Departure and Destination information is required' });
+        return;
+    }
+
+    if (body.price === '') {
+        res.render('create_flight', { message: 'Price is required' });
+        return;
+    }
+
+    if (body.status === '') {
+        res.render('create_flight', { message: 'Flight status is required' });
+        return;
+    }
+
+    if (body.airplane === '') {
+        res.render('create_flight', { message: 'Airplane ID is required' });
+        return;
+    }
+    console.log('creating flight');
+    await sql(queries.createFlight(body));
+    res.redirect('/');
+};
+const handleAddAirport = async function(req, res){
+    const body = req.body;
+    if (body.name === '') {
+        res.render('add_airport', { message: 'Airport Name is required' });
+        return;
+    }
+
+    if (body.city === '') {
+        res.render('add_airport', { message: 'Airport City is required' });
+        return;
+    }
+    console.log('Adding airport');
+    await sql(queries.addAirport(body));
+    res.redirect('/');
+}
+
+const handleAddAirplane = async function(req, res){
+    const body = req.body;
+    if (body.name === '') {
+        res.render('add_airplane', { message: 'Airline Name is required' });
+        return;
+    }
+
+    if (body.id === '') {
+        res.render('add_airplane', { message: 'Airplane ID is required' });
+        return;
+    }
+
+    if (body.seat === '') {
+        res.render('add_airplane', { message: 'Airplane seat is required' });
+        return;
+    }
+    console.log('Adding airplane');
+    await sql(queries.addAirplane(body));
+    res.redirect('/');
+}
+
+app.get('/createFlight', (req, res) => {
+    res.render('create_flight');
+});
+
+app.get('/addAirport', (req, res) => {
+    res.render('add_airport');
+});
+
+app.get('/addAirplane', (req, res) => {
+    res.render('add_airplane');
+});
+
+app.post('/createFlight', handleCreateFlight);
+
+app.post('/addAirport', handleAddAirport);
+
+app.post('/addAirplane', handleAddAirplane);
+//END OF STAFF OPERATION
+
 app.listen(PORT, () => console.log(`listening to port ${PORT}`));

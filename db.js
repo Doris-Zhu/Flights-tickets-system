@@ -84,9 +84,9 @@ WHERE (flight.departure_airport = dep.airport_name AND
 `;
 },
 
-addFlight: (body) => `
+createFlight: (body) => `
 INSERT INTO flight
-VALUES ('${body.flightName}', '${body.flightNum}', '${body.depAirport}', '${body.depTime}', '${body.arrAirport}', 
+VALUES ('${body.airline}', '${body.flightNum}', '${body.depAirport}', '${body.depTime}', '${body.arrAirport}', 
 '${body.arrTime}', '${body.price}', '${body.status}', '${body.airplane}')
 `,
 
@@ -194,6 +194,16 @@ findStaffFlights: (airline) => `
 SELECT *
 FROM flight
 WHERE flight.airline_name = '${airline}'
+`,
+
+addAirport: (body) =>`
+INSERT INTO airport
+VALUES ('${body.name}', '${body.city}')
+`,
+
+addAirplane: (body) =>`
+INSERT INTO airplane
+VALUES ('${body.name}', '${body.id}', '${body.seat}')
 `,
 }
 

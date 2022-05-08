@@ -276,6 +276,19 @@ GROUP BY customer
 ORDER BY num
 DESC LIMIT 3
 `,
+
+findTopDestinations: (month) => `
+SELECT airport.airport_city as city, count(purchases.ticket_id) as num
+FROM purchases, flight, ticket, airport
+WHERE flight.airline_name = ticket.airline_name AND 
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND
+    flight.arrival_airport = airport.airport_name AND
+    purchases.purchase_date > CURDATE() - INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY - INTERVAL ${month} MONTH
+GROUP BY city
+ORDER BY num
+DESC LIMIT 3
+`
 }
 
 module.exports = {

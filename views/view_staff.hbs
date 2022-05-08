@@ -51,3 +51,13 @@
 {{#each frequentConsumers as |c|}}
     <p>{{c.customer}} has bought {{c.num}} tickets.</p>
 {{/each}}
+
+<h2>Most Popular Destinations</h2>
+<p style="color:green">Top 3 Popular Destinations in Last 3 Months</p>
+{{#each destinationsThreeMonths as |d|}}
+    <p>{{d.city}}</p>
+{{/each}}
+<p style="color:green">Top 3 Popular Destinations in Last 12 Months </p>
+{{#each destinationsPastYear as |d|}}
+    <p>{{d.city}}</p>
+{{/each}}

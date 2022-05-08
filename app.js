@@ -150,6 +150,8 @@ app.get('/myinfo', async (req, res) => {
         const topAgentsByTicketPastYear = await sql(queries.topAgentsByTicketPastYear(req.session.user.airline_name));
         const topAgentsByCommissionPastYear = await sql(queries.topAgentsByCommissionPastYear(req.session.user.airline_name));
         const frequentConsumers = await sql(queries.findFrequentConsumers(req.session.user.airline_name));
+        const destinationsThreeMonths = await sql(queries.findTopDestinations('3'));
+        const destinationsPastYear = await sql(queries.findTopDestinations('12'));
         console.log(frequentConsumers);
         if (req.query.from === undefined || req.query.from === '') {
             req.query.from = new Date().toISOString().slice(0, 10);
@@ -166,7 +168,7 @@ app.get('/myinfo', async (req, res) => {
 
         const flights = await sql(queries.findStaffFlights(req.session.user.airline_name, req.query.from, req.query.to));
         res.render('view_staff', { myflights: flights, topAgentsByTicketLastMonth, topAgentsByTicketPastYear, 
-            topAgentsByCommissionPastYear, frequentConsumers})
+            topAgentsByCommissionPastYear, frequentConsumers, destinationsThreeMonths, destinationsPastYear})
     }
 });
 

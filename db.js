@@ -142,6 +142,32 @@ WHERE flight.airline_name = ticket.airline_name AND
     ticket.ticket_id = purchases.ticket_id AND 
     purchases.booking_agent_id = '${id}' AND
     DATE(purchases.purchase_date) >= DATE(NOW()) - INTERVAL 30 DAY
+`,
+
+findTopCustomersByNum: (id) => `
+SELECT purchases.customer_email as customer, count(flight.price) as num
+FROM flight, ticket, purchases
+WHERE flight.airline_name = ticket.airline_name AND 
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND 
+    purchases.booking_agent_id = '${id}' AND
+    purchases.purchase_date > CURDATE() - INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY - INTERVAL 6 MONTH
+GROUP BY customer
+ORDER BY num
+DESC LIMIT 5
+`,
+
+findTopCustomersByCommission: (id) => `
+SELECT purchases.customer_email as customer, sum(flight.price * 0.05) as total
+FROM flight, ticket, purchases
+WHERE flight.airline_name = ticket.airline_name AND 
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND 
+    purchases.booking_agent_id = '${id}' AND
+    purchases.purchase_date > CURDATE() - INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY - INTERVAL 12 MONTH
+GROUP BY customer
+ORDER BY total
+DESC LIMIT 5
 `
 }
 

@@ -23,6 +23,7 @@
         {{/each}}
     </table>
 {{/if}}
+
 <h2>Commission Information</h2>
 <form action="/myinfo" method="POST" style="display: flex;flex-flow: row;justify-content: center;align-items: center;">
     From<input type="date" name="from" style="margin:10px;">
@@ -32,3 +33,50 @@
 <p>Total amount of commission: {{commission.total}}</p>
 <p>Average commission: {{commission.average}}</p>
 <p>Number of tickets: {{commission.num}}</p>
+
+<h2>Top 5 Customers</h2>
+<div class="month-chart">
+    <canvas id="barChart"></canvas>
+    <canvas id="barChart2"></canvas>
+</div>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js'></script>
+<script>
+    new Chart(document.getElementById("barChart").getContext('2d'), {
+    type: 'bar',
+    data: {
+        labels: '{{customerEmails1}}'.split(','),
+        datasets: [{
+            label: 'Number of tickets purchased',
+            data: [{{numOfTickets}}],
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                beginAtZero: true
+                }
+            }]
+        }
+    }
+    });
+    new Chart(document.getElementById("barChart2").getContext('2d'), {
+    type: 'bar',
+    data: {
+        labels: '{{customerEmails2}}'.split(','),
+        datasets: [{
+            label: 'Amount of commission',
+            data: [{{customerCommission}}],
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                beginAtZero: true
+                }
+            }]
+        }
+    }
+    });
+</script>

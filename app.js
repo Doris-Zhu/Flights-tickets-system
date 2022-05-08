@@ -70,7 +70,14 @@ app.get('/myinfo', async (req, res) => {
     else if (role == 'agent') {
         const flights = await sql(queries.findAgentFlights(req.session.user.booking_agent_id));
         const commission = await sql(queries.findAgentCommission(req.session.user.booking_agent_id));
-        res.render('view_agent', { myflights: flights, commission: commission[0]});
+        const topCustomersByNum = await sql(queries.findTopCustomersByNum(req.session.user.booking_agent_id));
+        const topCustomersByCom = await sql(queries.findTopCustomersByCommission(req.session.user.booking_agent_id));
+        const customerEmails1 = topCustomersByNum.map(customer => customer.customer);
+        const numOfTickets = topCustomersByNum.map(customer => customer.num);
+        const customerEmails2 = topCustomersByCom.map(customer => customer.customer);
+        const customerCommission = topCustomersByCom.map(customer => customer.total);
+        res.render('view_agent', { myflights: flights, commission: commission[0], customerEmails1, numOfTickets, 
+            customerEmails2, customerCommission});
     }
 });
 

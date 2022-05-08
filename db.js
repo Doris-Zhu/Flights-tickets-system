@@ -4,6 +4,7 @@ const { connectionConfig } = require('./dbconfig.js');
 async function sql(query) {
     const connection = await mysql.createConnection(connectionConfig);
     const [rows, fields] = await connection.execute(query);
+    connection.end();
     return rows;
 }
 
@@ -97,29 +98,26 @@ VALUES ('${obj.id}', '${obj.email}', NULL, '${obj.date}')
 `,
 
 trackTotalSpending: (email) => `
-SELECT sum(flight.price) as p
+SELECT SUM(flight.price) as price
 FROM flight, ticket, purchases
 WHERE flight.airline_name = ticket.airline_name AND 
-flight.flight_num = ticket.flight_num AND 
-ticket.ticket_id = purchases.ticket_id AND 
-purchases.customer_email = '${email}' AND
-purchases.purchase_date BETWEEN CURDATE() - INTERVAL 1 YEAR AND CURDATE()
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND 
+    purchases.customer_email = '${email}' AND 
+    purchases.purchase_date BETWEEN CURDATE() - INTERVAL 1 YEAR AND CURDATE()
 `,
 
 trackMonthlySpending: (email) => `
-SELECT MONTH(purchases.purchase_date) as month,sum(flight.price) as p, month(curdate()) as curr
+SELECT MONTH(purchases.purchase_date) as month, SUM(flight.price) as price
 FROM flight, ticket, purchases
 WHERE flight.airline_name = ticket.airline_name AND 
-flight.flight_num = ticket.flight_num AND 
-ticket.ticket_id = purchases.ticket_id AND 
-purchases.customer_email = '${email}' AND
-purchases.purchase_date > curdate() - interval (dayofmonth(curdate()) - 1) day - interval 6 month
-group by MONTH(purchases.purchase_date)
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND 
+    purchases.customer_email = '${email}' AND
+    purchases.purchase_date > CURDATE() - INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY - INTERVAL 6 MONTH
+    group by MONTH(purchases.purchase_date)
 `,
 }
-
-
-
 
 module.exports = {
     sql,

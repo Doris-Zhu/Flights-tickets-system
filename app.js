@@ -5,7 +5,6 @@ const path = require('path');
 const session = require('express-session');
 
 const { sql, queries } = require('./db.js');
-const { parse } = require('path');
 
 const app = express();
 
@@ -56,11 +55,31 @@ app.get('/myinfo', async (req, res) => {
 	const role = req.session.role;
     if (role == 'customer') {
         const flights = await sql(queries.findMyFlights(req.session.user.email));
+
         const totalSpending = await sql(queries.trackTotalSpending(req.session.user.email));
-        let monthlySpending = await sql(queries.trackMonthlySpending(req.session.user.email));
-        monthlySpending = monthlySpending.map(m => ({ month: m.month, p: parseInt(m.p), curr:m.curr }));
+
+        const INTERVAL = 6;
+        const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const currentMonth = new Date().getMonth();
+        const monthLabels = [];
+        const monthSpendings = [];
+        for (let i = currentMonth - INTERVAL + 1; i <= currentMonth; i++) {
+            monthLabels.push(`${MONTHS[(i + 12) % 12]}`);
+            monthSpendings.push(0);
+        }
+
+        const monthlySpending = await sql(queries.trackMonthlySpending(req.session.user.email));
+        monthlySpending.forEach((spending) => {
+            monthSpendings[INTERVAL - 1 - (currentMonth + 13 - spending.month) % 12] = spending.price;
+        });
         console.log(monthlySpending);
-        res.render('view_customer', { myflights: flights, spending: totalSpending[0].p, monthly: monthlySpending});
+
+        res.render('view_customer', {
+            myflights: flights,
+            spending: totalSpending[0].price,
+            monthLabels,
+            monthSpendings
+        });
     }
 });
 

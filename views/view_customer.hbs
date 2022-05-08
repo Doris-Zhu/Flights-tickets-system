@@ -31,9 +31,25 @@
 <div class="month-chart">
 <canvas id="barChart"></canvas>
 </div>
-<script>
-    console.log('hi');
-    console.log('h',{{monthly}});
-<script/>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js'></script>
-
+<script>
+    new Chart(document.getElementById("barChart").getContext('2d'), {
+    type: 'bar',
+    data: {
+        labels: '{{monthLabels}}'.split(','),
+        datasets: [{
+            label: 'Month wise money spending',
+            data: [{{monthSpendings}}],
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                beginAtZero: true
+                }
+            }]
+        }
+    }
+    });
+</script>

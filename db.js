@@ -215,7 +215,23 @@ findAllStaffs: (username) => `
 SELECT *
 FROM airline_staff
 WHERE username <> '${username}'
-`
+`,
+
+grantPermission: (username, permission) => `
+INSERT INTO permission
+VALUES ('${username}', '${permission}')
+`,
+
+topAgentsByTicketLastMonth: (airline) => `
+SELECT booking_agent.email, count(purchases.ticket_id) as count
+FROM booking_agent, booking_agent_work_for, purchases
+WHERE booking_agent.email = booking_agent_work_for.email AND
+    booking_agent.booking_agent_id = purchases.booking_agent_id AND
+    booking_agent_work_for.airline_name = '${airline}'
+GROUP BY booking_agent.email
+ORDER BY count
+DESC LIMIT 5
+`,
 }
 
 module.exports = {

@@ -21,3 +21,8 @@
         {{/each}}
     </table>
 {{/if}}
+
+<h2>Booking Agent Info</h2>
+{{#each topAgentsByTicketLastMonth as |a|}}
+    <p>{{a.email}}</p>
+{{/each}}

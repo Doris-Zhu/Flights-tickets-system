@@ -1,3 +1,21 @@
-<table>
-    
-</table>
+<form action="/grantStaffPermission" method="POST">
+    <table class="table table-striped diytable">
+        <tr>
+            <th scope="col">Staff Username</th>
+            <th scope="col">Grant Permission</th>
+        </tr>
+        {{#if staffs}}
+        
+            {{#each staffs as |s|}}
+                <tr>
+                    <td>{{s.username}}</td>
+                    <td>
+                        <label><input type="radio" name="admin" value='{{s.username}}'>Admin&nbsp;</label>
+                        <label><input type="radio" name="operator" value='{{s.username}}'>Operator&nbsp;</label>
+                    </td>
+                </tr>
+            {{/each}}
+        {{/if}}
+    </table>
+    <input type="submit" class="btn btn-success" value="Grant">
+</form>

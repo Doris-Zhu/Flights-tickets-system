@@ -134,7 +134,8 @@ app.get('/myinfo', async (req, res) => {
     }
     else if (role == 'staff') {
         const flights = await sql(queries.findStaffFlights(req.session.user.airline_name));
-        res.render('view_staff', { myflights: flights })
+        const topAgentsByTicketLastMonth = await sql(queries.topAgentsByTicketLastMonth(req.session.user.airline_name));
+        res.render('view_staff', { myflights: flights, topAgentsByTicketLastMonth})
     }
 });
 
@@ -505,6 +506,22 @@ const handleAddAgent = async function(req, res) {
     res.redirect('/');
 };
 
+const handleGrantPermission = async function(req, res) {
+    const admin = req.body.admin;
+    const operator = req.body.operator;
+    if(admin !== undefined){
+        await sql(queries.grantPermission(admin, 'Admin'));
+        res.redirect('/');
+    }
+    else if(operator !== undefined){
+        await sql(queries.grantPermission(operator, 'Operator'));
+        res.redirect('/');
+    }
+    else{
+        res.redirect('/grantStaffPermissoin');
+    }
+};
+
 app.get('/createFlight', (req, res) => {
     res.render('create_flight');
 });
@@ -521,10 +538,10 @@ app.get('/addBookingAgent', (req, res) => {
     res.render('add_agent');
 });
 
-app.get('/grantStaffPermission', (req, res) => {
+app.get('/grantStaffPermission', async (req, res) => {
     const staffs = await sql(queries.findAllStaffs(req.session.username));
-    res.render('grant_permission', staffs);
-})
+    res.render('grant_permission', {staffs});
+});
 
 app.post('/createFlight', handleCreateFlight);
 
@@ -533,6 +550,8 @@ app.post('/addAirport', handleAddAirport);
 app.post('/addAirplane', handleAddAirplane);
 
 app.post('/addBookingAgent', handleAddAgent);
+
+app.post('/grantStaffPermission', handleGrantPermission);
 //END OF STAFF OPERATION
 
 app.listen(PORT, () => console.log(`listening to port ${PORT}`));

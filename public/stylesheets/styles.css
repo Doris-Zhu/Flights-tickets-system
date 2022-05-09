@@ -58,8 +58,11 @@ h3, p {
 }
 
 .month-chart {
+    width: 50%;
     position: absolute;
-    left:10%;
+    margin-left: 30%;
+    justify-content: center;
+    align-items: center;
 }
 
 .bar {

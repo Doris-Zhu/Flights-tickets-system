@@ -110,6 +110,7 @@ app.get('/myinfo', async (req, res) => {
 
         res.render('view_customer', {
             myflights: flights,
+            user: req.session.username,
             spending: totalSpending[0].price,
             monthLabels,
             monthSpendings
@@ -139,6 +140,7 @@ app.get('/myinfo', async (req, res) => {
         const customerCommission = topCustomersByCom.map(customer => customer.total);
         res.render('view_agent', {
             myflights: flights, 
+            user: req.session.username,
             commission: commission[0], 
             customerEmails1, 
             numOfTickets, 
@@ -148,7 +150,9 @@ app.get('/myinfo', async (req, res) => {
     }
     else if (role == 'staff') {
         const topAgentsByTicketLastMonth = await sql(queries.topAgentsByTicketLastMonth(req.session.user.airline_name));
+        console.log('1', topAgentsByTicketLastMonth);
         const topAgentsByTicketPastYear = await sql(queries.topAgentsByTicketPastYear(req.session.user.airline_name));
+        console.log(topAgentsByTicketPastYear);
         const topAgentsByCommissionPastYear = await sql(queries.topAgentsByCommissionPastYear(req.session.user.airline_name));
         const frequentCustomers = await sql(queries.findfrequentCustomers(req.session.user.airline_name));
         const destinationsThreeMonths = await sql(queries.findTopDestinations('3'));
@@ -195,6 +199,7 @@ app.get('/myinfo', async (req, res) => {
         let from = `${year-1}-01-01`;
         let to = `${year}-01-01`;
         const ticketLastYear = await sql(queries.findTicketsSold(req.session.user.airline_name, from, to));
+        console.log('last year', ticketLastYear)
 
         if (req.query.ticketto === undefined || req.query.ticketto === '') {
             req.query.ticketto = new Date().toISOString().slice(0, 10);
@@ -231,6 +236,7 @@ app.get('/myinfo', async (req, res) => {
 
         res.render('view_staff', {
             myflights: flights, 
+            user: req.session.username,
             topAgentsByTicketLastMonth, 
             lastYearInput, 
             lastMonthInput, 
@@ -239,7 +245,7 @@ app.get('/myinfo', async (req, res) => {
             frequentCustomers, 
             destinationsThreeMonths, 
             destinationsPastYear,
-            ticketLastYear,
+            ticketLastYear: ticketLastYear[0],
             monthLabels,
             monthTickets
         });

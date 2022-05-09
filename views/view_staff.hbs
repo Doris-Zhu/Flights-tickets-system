@@ -39,7 +39,6 @@
     <p>{{a.email}}</p>
 {{/each}}
 
-
 <p style="color:green">Top 5 Booking Agents Based on Number of Tickets sales for the Past Year</p>
 {{#each topAgentsByTicketPastYear as |a|}}
     <p>{{a.email}}</p>
@@ -72,9 +71,10 @@
 </form>
 <div class="month-chart">
     <canvas id="barChart"></canvas>
-</div>
-<div class="month-chart">
+    <h2>Comparison of Revenue earned</h2>
+    <p>Last Year</p>
     <canvas id="pieChartLastYear"></canvas>
+    <p>Last Month</p>
     <canvas id="pieChartLastMonth"></canvas>
 </div>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js'></script>

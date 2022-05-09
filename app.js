@@ -195,6 +195,40 @@ app.get('/myinfo', async (req, res) => {
         let from = `${year-1}-01-01`;
         let to = `${year}-01-01`;
         const ticketLastYear = await sql(queries.findTicketsSold(req.session.user.airline_name, from, to));
+
+        if (req.query.ticketto === undefined || req.query.ticketto === '') {
+            req.query.ticketto = new Date().toISOString().slice(0, 10);
+        }
+        let toDateTicket = new Date(req.query.ticketto);
+        if (req.query.ticketfrom === undefined || req.query.ticketfrom === '') {
+            req.query.ticketfrom = addMonths(new Date(req.query.ticketto), -1).toISOString().slice(0, 10);
+        }
+        let fromDateTicket = new Date(req.query.ticketfrom);
+        if (fromDateTicket > toDateTicket) {
+            fromDateTicket = toDateTicket;
+            req.query.ticketfrom = fromDateTicket.toISOString().slice(0, 10);
+        }
+
+        const monthLabels = [];
+        const monthTickets = [];
+        let loopDate = new Date(req.query.ticketfrom);
+        while (loopDate <= toDateTicket) {
+            monthLabels.push(loopDate.toISOString().slice(0, 7));
+            monthTickets.push(0);
+            loopDate = addMonths(loopDate, 1);
+        }
+        const monthlyTickets = await sql(queries.trackMonthlyTickets(req.session.user.airline_name, req.query.ticketfrom, req.query.ticketto));
+        console.log(monthlyTickets);
+        monthlyTickets.forEach((tickets) => {
+            const yearMonth = `${tickets.year}-` + `${tickets.month}`.padStart(2, '0');
+            for (let i = 0; i < monthLabels.length; i++) {
+                if (monthLabels[i] === yearMonth) {
+                    monthTickets[i] = tickets.count;
+                }
+            }
+        });
+        console.log(monthTickets);
+
         res.render('view_staff', {
             myflights: flights, 
             topAgentsByTicketLastMonth, 
@@ -205,7 +239,9 @@ app.get('/myinfo', async (req, res) => {
             frequentCustomers, 
             destinationsThreeMonths, 
             destinationsPastYear,
-            ticketLastYear
+            ticketLastYear,
+            monthLabels,
+            monthTickets
         });
     }
 });

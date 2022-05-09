@@ -141,6 +141,18 @@ WHERE flight.airline_name = ticket.airline_name AND
 GROUP BY YEAR(purchases.purchase_date), MONTH(purchases.purchase_date)
 `,
 
+trackMonthlyTickets: (airline, from, to) => `
+SELECT YEAR(purchases.purchase_date) as year, MONTH(purchases.purchase_date) as month, COUNT(purchases.ticket_id) as count
+FROM flight, ticket, purchases
+WHERE flight.airline_name = ticket.airline_name AND 
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND 
+    flight.airline_name = '${airline}' AND
+    DATE(purchases.purchase_date) >= '${from}' AND
+    DATE(purchases.purchase_date) <= '${to}'
+GROUP BY YEAR(purchases.purchase_date), MONTH(purchases.purchase_date)
+`,
+
 findAgentFlights: (id) =>  `
 SELECT flight.airline_name, flight.flight_num, flight.departure_airport, flight.departure_time,
     flight.arrival_airport, flight.arrival_time, flight.price, flight.status, flight.airplane_id, purchases.customer_email as customer

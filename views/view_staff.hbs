@@ -65,6 +65,14 @@
 {{/each}}
 <h2>Report</h2>
 <p style="color:green">Tickets sold last year: {{ticketLastYear.num}}</p>
+<form action="/myinfo" method="GET" style="display: flex;flex-flow: row;justify-content: center;align-items: center;">
+    From<input type="date" name="ticketfrom" style="margin:10px;">
+    To<input type="date" name="ticketto" style="margin:10px;">
+    <input type="submit" class="btn btn-success btn-sm" value="Submit" style="margin-left: 10px;">
+</form>
+<div class="month-chart">
+    <canvas id="barChart"></canvas>
+</div>
 <div class="month-chart">
     <canvas id="pieChartLastYear"></canvas>
     <canvas id="pieChartLastMonth"></canvas>
@@ -94,5 +102,24 @@
         options: {
             responsive: true
         }
+    });
+    new Chart(document.getElementById("barChart").getContext('2d'), {
+    type: 'bar',
+    data: {
+        labels: '{{monthLabels}}'.split(','),
+        datasets: [{
+            label: 'Tickets',
+            data: [{{monthTickets}}],
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                beginAtZero: true
+                }
+            }]
+        }
+    }
     });
 </script>

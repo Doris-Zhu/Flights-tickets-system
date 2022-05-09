@@ -589,11 +589,7 @@ const handleAddAirport = async function(req, res) {
 
 const handleAddAirplane = async function(req, res) {
     const body = req.body;
-    if (body.name === '') {
-        res.render('add_airplane', { message: 'Airline Name is required' });
-        return;
-    }
-
+    body.name = req.session.user.airline_name;
     if (body.id === '') {
         res.render('add_airplane', { message: 'Airplane ID is required' });
         return;

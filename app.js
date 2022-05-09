@@ -6,6 +6,7 @@ const path = require('path');
 const session = require('express-session');
 
 const { sql, queries } = require('./db.js');
+const { parentPort } = require('worker_threads');
 
 const app = express();
 
@@ -624,7 +625,23 @@ app.get('/grantStaffPermission', async (req, res) => {
 app.get('/changeStatus', async (req, res) => {
     const flights = await sql(queries.findAllStaffFlights(req.session.user.airline_name));
     res.render('change_status', {flights});
-})
+});
+
+app.get('/findCustomers', async (req, res) => {
+    const flight_num = req.query.num;
+    const airline = req.session.user.airline_name;
+    const customers = await sql(queries.findCustomersByFlight(airline, flight_num));
+    console.log(customers);
+    res.render('find_customers', { customers, flight_num });
+});
+
+app.get('/findFlights', async (req, res) => {
+    const customer = req.query.customer;
+    const airline = req.session.user.airline_name;
+    const flights = await sql(queries.findFlightsByCustomer(airline, customer));
+    console.log(flights);
+    res.render('find_flights', { flights, customer });
+});
 
 app.post('/createFlight', handleCreateFlight);
 

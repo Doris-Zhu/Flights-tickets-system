@@ -23,7 +23,7 @@
         {{#each myflights as |f|}}
             <tr>
                 <td scope="row">{{f.airline_name}}</td>
-                <td>{{f.flight_num}}</td>
+                <td><a href="/findCustomers?num={{f.flight_num}}">{{f.flight_num}}</a></td>
                 <td>{{f.departure_airport}}</td>
                 <td>{{f.arrival_airport}}</td>
                 <td>{{f.departure_time}}</td>
@@ -51,7 +51,7 @@
 
 <h2>Most Frequent Consumers</h2>
 {{#each frequentCustomers as |c|}}
-    <p>{{c.customer}} has bought {{c.num}} tickets.</p>
+    <p><a href="/findFlights?customer={{c.customer}}">{{c.customer}}</a> has bought {{c.num}} tickets.</p>
 {{/each}}
 
 <h2>Most Popular Destinations</h2>

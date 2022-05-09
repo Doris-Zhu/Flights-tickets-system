@@ -8,6 +8,7 @@
             <th scope="col">Destination Airport</th>
             <th scope="col">Date</th>
             <th scope="col">Status</th>
+            <th scope="col">For</th>
             
         </tr>
         {{#each myflights as |f|}}
@@ -18,7 +19,7 @@
                 <td>{{f.arrival_airport}}</td>
                 <td>{{f.departure_time}}</td>
                 <td>{{f.status}}</td>
-                
+                <td>{{f.customer}}</td>
             </tr>
         {{/each}}
     </table>

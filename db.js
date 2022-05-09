@@ -143,7 +143,7 @@ GROUP BY YEAR(purchases.purchase_date), MONTH(purchases.purchase_date)
 
 findAgentFlights: (id) =>  `
 SELECT flight.airline_name, flight.flight_num, flight.departure_airport, flight.departure_time,
-    flight.arrival_airport, flight.arrival_time, flight.price, flight.status, flight.airplane_id
+    flight.arrival_airport, flight.arrival_time, flight.price, flight.status, flight.airplane_id, purchases.customer_email as customer
 FROM flight, ticket, purchases
 WHERE flight.airline_name = ticket.airline_name AND 
     flight.flight_num = ticket.flight_num AND 
@@ -327,6 +327,26 @@ UPDATE flight
 SET status = '${s}'
 WHERE airline_name = '${airline}' AND
 flight_num = '${num}'
+`,
+
+findCustomersByFlight:(airline, num) => `
+SELECT purchases.customer_email as customer
+FROM purchases, flight, ticket
+WHERE flight.airline_name = ticket.airline_name AND 
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND
+    flight.airline_name = '${airline}' AND
+    flight.flight_num = '${num}'
+`,
+
+findFlightsByCustomer:(airline, email) => `
+SELECT flight.flight_num as flight
+FROM purchases, flight, ticket
+WHERE flight.airline_name = ticket.airline_name AND 
+    flight.flight_num = ticket.flight_num AND 
+    ticket.ticket_id = purchases.ticket_id AND
+    flight.airline_name = '${airline}' AND
+    purchases.customer_email = '${email}'
 `,
 }
 

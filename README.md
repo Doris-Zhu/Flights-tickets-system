@@ -1,2 +1,2 @@
 # databases-final-project
-Project for Databases CSCI-SHU 213
+Use Express.js and MySQL to implement the ui and databases of the web application
